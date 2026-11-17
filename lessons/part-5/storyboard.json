@@ -1,0 +1,212 @@
+{
+ "scene": "placement",
+ "pageTitle": {
+  "en": "Part 5: What the cost does not know",
+  "fr": "Partie 5 : Ce que le coût ne sait pas"
+ },
+ "eyebrow": {
+  "en": "Lab 07 · animated lesson · part 5",
+  "fr": "Lab 07 · leçon animée · partie 5"
+ },
+ "title": {
+  "en": "What the cost does not know",
+  "fr": "Ce que le coût ne sait pas"
+ },
+ "lede": {
+  "en": "Two hundred seeds give best wirelengths from 13.7 to 52: seed 42's 49.6 is one of the worst. With 300 moves the wires shrink to 2.6, but the cells pile up on top of each other, and the cost does not see it. In the lab, drag all six cells onto one point and see.",
+  "fr": "Deux cents graines donnent des meilleures longueurs de fil de 13.7 à 52 : les 49.6 de la graine 42 sont parmi les pires. Avec 300 mouvements, les fils tombent à 2.6, mais les cellules s'empilent les unes sur les autres, et le coût ne le voit pas. Dans le lab, glissez les six cellules sur un même point et voyez."
+ },
+ "note": {
+  "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move of its traces and checks them.",
+  "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque mouvement de ses traces et les vérifie."
+ },
+ "placement": {
+  "run": "seed42_60",
+  "pads": ["A", "D"],
+  "colors": { "F": "#475569" },
+  "claims": [
+   { "seeds": true, "min": 13.7, "max": 52, "median": 36, "minSeed": 134, "maxSeed": 199, "beat": { "seed": 42, "count": 197 } },
+   { "run": "seed42_300", "best": 2.6, "bestMove": 278 },
+   { "run": "seed42_300", "move": 60, "hpwl": 49.6, "bestSoFar": 49.6 },
+   { "run": "seed42_60", "best": 49.6, "accepted": 44, "rejected": 16 },
+   { "positions": { "A": { "x": 4, "y": 4 }, "B": { "x": 4, "y": 4 }, "C": { "x": 4, "y": 4 }, "D": { "x": 4, "y": 4 }, "E": { "x": 4, "y": 4 }, "F": { "x": 4, "y": 4 } }, "hpwl": 0 }
+  ]
+ },
+ "anchors": {
+  "twohundred":  { "slide": 24, "en": "two hundred",            "fr": "deux cents" },
+  "middle":      { "slide": 24, "en": "middle",                 "fr": "milieu" },
+  "ninetyseven": { "slide": 24, "en": "ninety-seven",           "fr": "quatre-vingt-dix-sept" },
+  "instead":     { "slide": 25, "en": "instead",                "fr": "lieu" },
+  "same":        { "slide": 25, "en": "same",                   "fr": "mêmes" },
+  "point":       { "slide": 25, "en": "point",                  "fr": "virgule" },
+  "look":        { "slide": 26, "en": "Look",                   "fr": "Regardez" },
+  "top":         { "slide": 26, "en": "top",                    "fr": "sur" },
+  "perfect":     { "slide": 26, "en": "perfect",                "fr": "parfait" },
+  "pads":        { "slide": 27, "en": "pads",                   "fr": "plots" },
+  "even":        { "slide": 27, "en": "even",                   "fr": "même" },
+  "allows":      { "slide": 28, "en": "allows",                 "fr": "permet" },
+  "strict":      { "slide": 28, "en": "strict",                 "fr": "strict" },
+  "mean":        { "slide": 28, "en": "mean",                   "fr": "veut" },
+  "keep":        { "slide": 28, "en": "Keep",                   "fr": "Gardez" },
+  "story":       { "slide": 28, "en": "story",                  "fr": "histoire" },
+  "knows":       { "slide": 28, "en": "knows",                  "fr": "connaît" },
+  "browser":     { "slide": 29, "en": "browser",                "fr": "navigateur" },
+  "accepted":    { "slide": 29, "en": "accepted",               "fr": "acceptés" },
+  "fortynine":   { "slide": 29, "en": "forty#1",                "fr": "quarante#1" }
+ },
+ "pausing": { "between": 0.55, "scene": 0.9, "question": 1.3, "tail": 2.8 },
+ "pauses": [
+  { "after": "@point", "sec": 1.6 },
+  { "after": "@perfect", "sec": 1.2 },
+  { "after": "@knows", "sec": 1.2 }
+ ],
+ "initial": { "run": "seed42_60", "move": 60, "side": 1 },
+ "timeline": [
+  { "at": "@instead", "run": "seed42_300", "move": { "to": "all", "until": "@point" } },
+  { "at": "@look", "camera": [200, 335, 420] },
+  { "at": "slide:27", "camera": "full" },
+  { "at": "@ninetyseven", "dim": 0.12 },
+  { "at": "slide:25", "dim": 1 },
+  { "at": "slide:28", "side": 0, "dim": 0.12 },
+  { "at": "slide:29", "side": 1, "dim": 1, "run": "seed42_60", "move": { "to": 60, "over": 3.0 } },
+  { "at": "slide:29:end", "side": 0, "dim": 0.12 }
+ ],
+ "show": [
+  { "show": "nets", "from": "start", "to": "slide:28" },
+  { "show": "spread", "from": "@twohundred", "to": "slide:25", "seeds": [42, 199, 134, 162], "median": true, "stagger": 0.01 },
+  { "show": "counter", "from": "slide:25", "to": "slide:28", "metric": "hpwl" },
+  { "show": "chart", "from": "slide:25", "to": "slide:28", "best": true },
+  { "show": "thermo", "from": "slide:25", "to": "@look" },
+  { "show": "thermo", "from": "slide:27+1.5", "to": "slide:28" },
+  { "show": "highlight", "from": "@pads", "to": "slide:28", "ids": ["A", "D"] },
+  { "show": "nets", "from": "slide:29", "to": "end" },
+  { "show": "counter", "from": "slide:29", "to": "end", "metric": "hpwl" },
+  { "show": "tally", "from": "@accepted", "to": "end" }
+ ],
+ "overlays": [
+  {
+   "from": "slide:24", "to": "slide:25", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "One seed, **one story**", "fr": "Une graine, **une histoire**" },
+   "sub": { "en": "{200 seeds: 13.7 to 52, middle 36@middle}", "fr": "{200 graines : 13.7 à 52, milieu 36@middle}" }
+  },
+  {
+   "from": "@ninetyseven+0.7", "to": "slide:25", "x": 3, "y": 60, "type": "stamp",
+   "text": { "en": "197 beat seed 42", "fr": "197 battent 42" }
+  },
+  {
+   "from": "slide:25", "to": "slide:26", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "**300** moves", "fr": "**300** mouvements" },
+   "sub": { "en": "{the same first 60 moves@same}", "fr": "{les mêmes 60 premiers mouvements@same}" }
+  },
+  {
+   "from": "slide:26", "to": "slide:27", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "What the cost **does not know**", "fr": "Ce que le coût **ne sait pas**" }
+  },
+  {
+   "from": "@top", "to": "slide:26:end", "x": 59, "y": 60, "type": "stamp",
+   "text": { "en": "overlap!", "fr": "tas !" }
+  },
+  {
+   "from": "@top", "to": "slide:26:end", "x": 2, "y": 42, "type": "thumbs",
+   "items": [
+    { "run": "seed42_60", "move": "best" },
+    { "run": "seed42_300", "move": "best" }
+   ]
+  },
+  {
+   "from": "slide:27", "to": "slide:28", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Every cell **moves**", "fr": "Toutes les cellules **bougent**" }
+  },
+  {
+   "from": "@even", "to": "slide:28", "x": 46, "y": 20, "type": "tag",
+   "text": { "en": "pads move too, in this lab", "fr": "les plots bougent aussi, ici" }
+  },
+  {
+   "from": "slide:28", "to": "slide:29", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Remember", "fr": "À retenir" }
+  },
+  {
+   "from": "slide:28", "to": "slide:29", "x": 3, "y": 20, "type": "vocab",
+   "items": [
+    { "k": { "en": "Dice", "fr": "Dé" }, "text": { "en": "worse passes only by chance", "fr": "un pire ne passe que si le dé le permet" }, "at": "@allows" },
+    { "k": { "en": "Cold", "fr": "Froid" }, "text": { "en": "the dice gets strict", "fr": "le dé devient strict" }, "at": "@strict" },
+    { "k": { "en": "Accepted", "fr": "Accepté" }, "text": { "en": "not the same as better", "fr": "pas la même chose que meilleur" }, "at": "@mean" },
+    { "k": { "en": "Best", "fr": "Meilleur" }, "text": { "en": "keep a copy, return it", "fr": "gardez une copie, rendez-la" }, "at": "@keep" },
+    { "k": { "en": "Seed", "fr": "Graine" }, "text": { "en": "one seed, one story", "fr": "une graine, c'est une histoire" }, "at": "@story" },
+    { "k": { "en": "Cost", "fr": "Coût" }, "text": { "en": "only knows the wires", "fr": "ne connaît que les fils" }, "at": "@knows" }
+   ]
+  },
+  {
+   "from": "slide:29", "to": "end", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Your **turn**", "fr": "À **vous**" },
+   "sub": { "en": "{49.6 · 44 accepted · 16 rejected@fortynine}", "fr": "{49.6 · 44 acceptés · 16 refusés@fortynine}" }
+  },
+  { "from": "slide:29:end+0.3", "to": "end", "x": 50, "y": 44, "type": "question" }
+ ],
+ "question": {
+  "at": "slide:29:end+0.3",
+  "text": {
+   "en": "How could the cost stop cells from **piling up**?",
+   "fr": "Comment le coût pourrait-il empêcher les cellules de **s'empiler** ?"
+  },
+  "hint": {
+   "en": "The cost only counts wires.",
+   "fr": "Le coût ne compte que les fils."
+  },
+  "options": [
+   {
+    "label": { "en": "Count the cells in each area", "fr": "Compter les cellules par zone" },
+    "reply": {
+     "en": "Yes: split the chip into squares and punish crowded ones. That is the next lab, density bins and overflow.",
+     "fr": "Oui : découpez la puce en cases et punissez les cases trop pleines. C'est le prochain lab, les bacs de densité et le débordement."
+    },
+    "correct": true
+   },
+   {
+    "label": { "en": "Run more moves", "fr": "Lancer plus de mouvements" },
+    "reply": {
+     "en": "No: with 300 moves the cells piled up even more. More moves only chase shorter wires.",
+     "fr": "Non : avec 300 mouvements, les cellules se sont encore plus empilées. Plus de mouvements ne cherche que des fils plus courts."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "Freeze the pads", "fr": "Figer les plots" },
+    "reply": {
+     "en": "That holds A and D only. The other cells can still pile up: the cost needs a crowding term, the next lab.",
+     "fr": "Cela ne retient que A et D. Les autres cellules peuvent encore s'empiler : il faut un terme d'encombrement au coût, le prochain lab."
+    },
+    "correct": false
+   }
+  ]
+ },
+ "chapters": [
+  { "at": "start", "title": { "en": "Two hundred seeds", "fr": "Deux cents graines" } },
+  { "at": "slide:25", "title": { "en": "Three hundred moves", "fr": "Trois cents mouvements" } },
+  { "at": "slide:28", "title": { "en": "Remember", "fr": "À retenir" } },
+  { "at": "slide:29", "title": { "en": "Your turn", "fr": "À vous" } }
+ ],
+ "strings": {
+  "en": {
+   "plChance": "chance to keep: {p} %"
+  },
+  "fr": {
+   "plYours": "Votre exécution",
+   "plPaused": "En pause. Vous essayez vos propres mouvements.",
+   "plHint": "Faites glisser une cellule pour voir la longueur de fil changer, ou laissez jouer le recuit : un mouvement à la fois, ou toute une exécution.",
+   "plStep": "Un mouvement",
+   "plMoveN": "mouvement",
+   "plMoves": "mouvements",
+   "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}",
+   "plChance": "chance de garder : {p} %",
+   "plWorse": "pires",
+   "plFree": "neutres",
+   "plVFree": "mouvement neutre",
+   "plVBest": "nouveau meilleur",
+   "plStepMsg": "Mouvement {k} : cellule {c}, {axis} {d}. Fils {dh}. T = {T}. {how} : <b>{v}</b>. Longueur de fil {h}, meilleur {b}.",
+   "plRunMsg": "Graine {s}, {n} mouvements : meilleur <b>{b}</b> ({bm}), final {f}. Acceptés {a} ({be} mieux, {w} pires, {fr} neutres), refusés {r}.",
+   "plAtMove": "au mouvement {k}",
+   "plDone": "L'exécution est finie. Appuyez sur « Recommencer » ou changez la graine."
+  }
+ }
+}
