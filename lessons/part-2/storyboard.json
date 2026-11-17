@@ -91,7 +91,7 @@
    "text": { "en": "A **free** move", "fr": "Un mouvement **neutre**" }
   },
   {
-   "from": "@free", "to": "slide:11", "x": 52, "y": 24, "type": "term",
+   "from": "@free", "to": "slide:11", "x": 3, "y": 13.5, "type": "term",
    "text": { "en": "Free move", "fr": "Mouvement neutre" },
    "sub": { "en": "the cell moves, no wire changes", "fr": "la cellule bouge, aucun fil ne change" }
   },
@@ -100,7 +100,7 @@
    "text": { "en": "What sets the **chance**", "fr": "Ce qui fixe la **chance**" }
   },
   {
-   "from": "@seventy", "to": "slide:12", "x": 46, "y": 9, "type": "tags",
+   "from": "@seventy", "to": "slide:12", "x": 48, "y": 0.5, "type": "tags",
    "items": [
     { "text": { "en": "1 longer: 72 %", "fr": "1 de plus : 72 %" } },
     { "text": { "en": "3 longer: 37 %", "fr": "3 de plus : 37 %" }, "at": "@thirty" },
@@ -108,7 +108,7 @@
    ]
   },
   {
-   "from": "@temperature", "to": "slide:12", "x": 46, "y": 23, "type": "eq",
+   "from": "@temperature", "to": "slide:12", "x": 3, "y": 14, "type": "eq",
    "text": { "en": "chance = e^(−Δ ÷ T)", "fr": "chance = e^(−Δ ÷ T)" }
   },
   {
