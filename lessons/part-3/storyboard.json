@@ -1,0 +1,190 @@
+{
+ "scene": "placement",
+ "pageTitle": {
+  "en": "Part 3: Hot to cold",
+  "fr": "Partie 3 : Du chaud au froid"
+ },
+ "eyebrow": {
+  "en": "Lab 07 · animated lesson · part 3",
+  "fr": "Lab 07 · leçon animée · partie 3"
+ },
+ "title": {
+  "en": "Hot to cold",
+  "fr": "Du chaud au froid"
+ },
+ "lede": {
+  "en": "Colder means a stricter dice: the same +3 move now passes only twelve percent of the time. Watch the run cool from 3 to 0.07 over its sixty moves, and count what was really accepted. Run to the end yourself.",
+  "fr": "Plus il fait froid, plus le dé est strict : le même mouvement +3 ne passe plus que douze pour cent du temps. Regardez l'exécution refroidir de 3 à 0.07 pendant ses soixante mouvements, et comptez ce qui a vraiment été accepté. Lancez l'exécution jusqu'au bout vous-même."
+ },
+ "note": {
+  "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move of its traces and checks them.",
+  "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque mouvement de ses traces et les vérifie."
+ },
+ "placement": {
+  "run": "seed42_60",
+  "colors": { "F": "#475569" },
+  "claims": [
+   { "run": "seed42_60", "move": 13, "p": 0.12, "u": 0.09, "accepted": true, "kind": "worse", "hpwl": 58.6 },
+   { "run": "seed42_60", "peak": 58.6, "Tend": 0.07, "bestMove": 45, "best": 49.6, "accepted": 44, "rejected": 16, "better": 11, "worse": 9, "free": 24 },
+   { "run": "seed42_60", "move": 60, "cell": "A", "axis": "x", "dHpwl": 3, "T": 0.08, "p": 0, "accepted": false, "clamped": true },
+   { "formula": "p", "dHpwl": 3, "T": 1.43, "p": 0.12 }
+  ]
+ },
+ "anchors": {
+  "twelve":     { "slide": 13, "en": "twelve",      "fr": "douze" },
+  "shows":      { "slide": 13, "en": "shows",       "fr": "affiche" },
+  "passes":     { "slide": 13, "en": "passes",      "fr": "passe" },
+  "longest":    { "slide": 13, "en": "longest",     "fr": "long" },
+  "nearzero":   { "slide": 14, "en": "ends",        "fr": "finit" },
+  "brave":      { "slide": 14, "en": "brave",       "fr": "audacieux" },
+  "picky":      { "slide": 14, "en": "picky",       "fr": "difficile" },
+  "watch":      { "slide": 15, "en": "watch",       "fr": "regardez" },
+  "fortyfive":  { "slide": 15, "en": "forty-five",  "fr": "quarante-cinq" },
+  "fortynine":  { "slide": 15, "en": "forty-nine",  "fr": "quarante-neuf" },
+  "last":       { "slide": 16, "en": "last",        "fr": "dernier" },
+  "three":      { "slide": 16, "en": "three",       "fr": "trois" },
+  "chance":     { "slide": 16, "en": "chance",      "fr": "chance" },
+  "rejected":   { "slide": 16, "en": "rejected",    "fr": "refusé" },
+  "fortyfour":  { "slide": 17, "en": "forty-four",  "fr": "quarante-quatre" },
+  "eleven":     { "slide": 17, "en": "eleven",      "fr": "onze" },
+  "twentyfour": { "slide": 17, "en": "Twenty-four", "fr": "Vingt-quatre" },
+  "mean":       { "slide": 17, "en": "mean",        "fr": "veut" }
+ },
+ "pausing": { "between": 0.55, "scene": 0.9, "question": 1.3, "tail": 2.8 },
+ "pauses": [
+  { "after": "@longest", "sec": 1.2 },
+  { "after": "@fortynine", "sec": 2.0 },
+  { "after": "@rejected", "sec": 1.2 },
+  { "after": "@twentyfour", "sec": 1.0 }
+ ],
+ "initial": { "run": "seed42_60", "move": 12, "side": 1 },
+ "timeline": [
+  { "at": "start+2.7", "move": { "to": 13, "until": "@passes+1.2", "phases": { "delta": "start+2.8", "dice": "@shows", "verdict": "@passes" } } },
+  { "at": "@watch", "move": { "to": 45, "until": "@fortyfive" } },
+  { "at": "@fortynine+0.8", "move": { "to": 59, "over": 2.0 } },
+  { "at": "@last", "move": { "to": 60, "until": "@rejected+1.2", "phases": { "delta": "@three", "dice": "@chance", "verdict": "@rejected" } } },
+  { "at": "@mean", "side": 0, "dim": 0.12 }
+ ],
+ "show": [
+  { "show": "nets", "from": "start", "to": "end" },
+  { "show": "counter", "from": "start", "to": "end", "metric": "hpwl" },
+  { "show": "move", "from": "start", "to": "slide:17" },
+  { "show": "dice", "from": "start", "to": "slide:14" },
+  { "show": "dice", "from": "@last", "to": "slide:17" },
+  { "show": "thermo", "from": "start", "to": "end" },
+  { "show": "chart", "from": "@watch", "to": "end", "best": false },
+  { "show": "tally", "from": "@fortyfour", "to": "@eleven" },
+  { "show": "tally", "from": "@eleven", "to": "end", "kinds": true }
+ ],
+ "overlays": [
+  {
+   "from": "slide:13", "to": "slide:14", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Colder: **12 %**", "fr": "Plus **froid** : **12 %**" },
+   "sub": { "en": "{dice 0.09 < 0.12: passes@passes}", "fr": "{dé 0.09 < 0.12 : passe@passes}" }
+  },
+  {
+   "from": "@longest", "to": "slide:14", "x": 46, "y": 9, "type": "tag",
+   "text": { "en": "the longest of the run", "fr": "le plus long de l'exécution" }
+  },
+  {
+   "from": "slide:14", "to": "slide:15", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "From **hot** to **cold**", "fr": "Du **chaud** au **froid**" },
+   "sub": { "en": "{T: 3 → 0.07@nearzero}", "fr": "{T : 3 → 0.07@nearzero}" }
+  },
+  {
+   "from": "@brave", "to": "slide:15", "x": 46, "y": 9, "type": "tags",
+   "items": [
+    { "text": { "en": "hot = brave", "fr": "chaud = audacieux" } },
+    { "text": { "en": "cold = picky", "fr": "froid = difficile" }, "at": "@picky" }
+   ]
+  },
+  {
+   "from": "slide:15", "to": "slide:16", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "**Sixty** moves", "fr": "**Soixante** mouvements" },
+   "sub": { "en": "{shortest so far: 49.6, move 45@fortynine}", "fr": "{plus court pour l'instant : 49.6, mouvement 45@fortynine}" }
+  },
+  {
+   "from": "slide:16", "to": "slide:17", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "The **last** move", "fr": "Le **dernier** mouvement" },
+   "sub": { "en": "{T < 0.1: chance 0@chance}", "fr": "{T < 0.1 : chance 0@chance}" }
+  },
+  {
+   "from": "slide:17", "to": "slide:18", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Accepted **≠** better", "fr": "Accepté **≠** meilleur" }
+  },
+  {
+   "from": "@mean+0.5", "to": "slide:18:end+0.3", "x": 3, "y": 38, "type": "stamp",
+   "text": { "en": "44 accepted, 11 better", "fr": "44 acceptés, 11 mieux" }
+  },
+  {
+   "from": "slide:18", "to": "end", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Last or **best**?", "fr": "Dernier ou **meilleur** ?" }
+  },
+  { "from": "slide:18:end+0.3", "to": "end", "x": 50, "y": 44, "type": "question" }
+ ],
+ "question": {
+  "at": "slide:18:end+0.3",
+  "text": {
+   "en": "After 60 moves, are the **last** wires also the **shortest**?",
+   "fr": "Après soixante mouvements, les **derniers** fils sont-ils aussi les **plus courts** ?"
+  },
+  "hint": {
+   "en": "Look at the chart.",
+   "fr": "Regardez le graphique."
+  },
+  "options": [
+   {
+    "label": { "en": "Yes, always", "fr": "Toujours" },
+    "reply": {
+     "en": "Not always. Part 4 shows two seeds where the last move spoils it.",
+     "fr": "Pas toujours. La partie 4 montre deux graines où le dernier mouvement gâche tout."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "This time", "fr": "Cette fois" },
+    "reply": {
+     "en": "Good eye: the chart ends on its lowest value. Part 4 explains why that is luck.",
+     "fr": "Bien vu : le graphique finit sur sa valeur la plus basse. La partie 4 explique pourquoi c'est de la chance."
+    },
+    "correct": true
+   },
+   {
+    "label": { "en": "Never", "fr": "Jamais" },
+    "reply": {
+     "en": "Too strong: look where the chart ends.",
+     "fr": "Trop fort : regardez où finit le graphique."
+    },
+    "correct": false
+   }
+  ]
+ },
+ "chapters": [
+  { "at": "start", "title": { "en": "Colder", "fr": "Plus froid" } },
+  { "at": "slide:14", "title": { "en": "Hot to cold", "fr": "Du chaud au froid" } },
+  { "at": "slide:17", "title": { "en": "Accepted is not better", "fr": "Accepté n'est pas meilleur" } }
+ ],
+ "strings": {
+  "en": {
+   "plChance": "chance to keep: {p} %"
+  },
+  "fr": {
+   "plYours": "Votre exécution",
+   "plPaused": "En pause. Vous essayez vos propres mouvements.",
+   "plHint": "Faites glisser une cellule pour voir la longueur de fil changer, ou laissez jouer le recuit : un mouvement à la fois, ou toute une exécution.",
+   "plStep": "Un mouvement",
+   "plMoveN": "mouvement",
+   "plMoves": "mouvements",
+   "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}",
+   "plChance": "chance de garder : {p} %",
+   "plWorse": "pires",
+   "plFree": "neutres",
+   "plVFree": "mouvement neutre",
+   "plVBest": "nouveau meilleur",
+   "plStepMsg": "Mouvement {k} : cellule {c}, {axis} {d}. Fils {dh}. T = {T}. {how} : <b>{v}</b>. Longueur de fil {h}, meilleur {b}.",
+   "plRunMsg": "Graine {s}, {n} mouvements : meilleur <b>{b}</b> ({bm}), final {f}. Acceptés {a} ({be} mieux, {w} pires, {fr} neutres), refusés {r}.",
+   "plAtMove": "au mouvement {k}",
+   "plDone": "L'exécution est finie. Appuyez sur « Recommencer » ou changez la graine."
+  }
+ }
+}
