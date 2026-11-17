@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 07 — Placement par recuit simulé · Placement pour l'EDA</title>
+  <meta name="description" content="Lab 07 du cours Placement pour l'EDA : le placement de six cellules par recuit simulé, raconté en cinq courtes leçons animées, avec un lab interactif dans le navigateur, un vérificateur Python et un quiz.">
+  <link rel="alternate" hreflang="en" href="../index.html">
+  <link rel="preload" href="../fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../page.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <span class="crumb">Placement pour l'EDA · <strong>Lab 07</strong></span>
+      <nav class="toc" aria-label="Sur cette page">
+        
+        <a href="#lab">Lab interactif</a>
+        <a href="#implement">Implémentation</a>
+        <a href="#quiz">Quiz</a>
+        <a href="#transcript">Transcription</a>
+        <a class="lang-switch" href="../index.html" hreflang="en" lang="en" title="Read this page in English">English</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Lab 07 · Placement global</p>
+      <h1>Placement par recuit simulé</h1>
+      <p class="lead">Six cellules sont posées sur une petite puce, reliées par six réseaux. Le recuit simulé les déplace au hasard, et garde un mouvement pire quand un dé dit oui, de moins en moins souvent à mesure que la puce refroidit. Ce lab raconte une exécution mouvement par mouvement, puis vous laisse la lancer, faire glisser les cellules vous-même et compter les mouvements.</p>
+    </div>
+
+    
+
+    <section id="lab">
+      <h2>Lab interactif</h2>
+      <div class="card lab-grid">
+        <a href="tools/sa-placement/index.html"><img src="img/lab-starter.webp" loading="lazy" alt="Le lab de recuit simulé : la puce avec six cellules et les boîtes de leurs réseaux, la courbe d&#x27;une exécution et le journal des mouvements"></a>
+        <div>
+          <p>Lancez-le et jouez avec, directement dans le navigateur :</p>
+          <ul>
+            <li>Appuyez sur Appliquer le préréglage : la graine 42 avec 60 mouvements donne 49.6, avec 44 mouvements acceptés et 16 refusés, l&#x27;exécution des leçons.</li>
+<li>Lisez l&#x27;exécution mouvement par mouvement : une courbe de la longueur de fil, et un journal avec la poussée, la chance, le dé et le verdict de chaque mouvement.</li>
+<li>Faites glisser les cellules vous-même, ou choisissez-en une et utilisez les flèches, et regardez changer les six boîtes de réseau et le total.</li>
+<li>Lancez n&#x27;importe quelle graine avec n&#x27;importe quel nombre de mouvements, et passez du meilleur placement au dernier.</li>
+          </ul>
+          <p>Neuf défis, de l'initiation à l'approfondissement, vérifient ce que vous avez construit ou compté, pas le bouton sur lequel vous avez cliqué. Le recuit part toujours du placement de départ, et déplacer une cellule après une exécution annule les nombres de cette exécution.</p>
+          <div class="btns"><a class="btn primary" href="tools/sa-placement/index.html">Ouvrir le lab</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="implement">
+      <h2>Implémentation (parcours A)</h2>
+      <p>Écrivez vous-même <code>mulberry32</code>, <code>total_hpwl</code> et <code>sa_place</code>, à partir des règles écrites, et vérifiez-les avec les résultats de référence. Les commandes ci-dessous se lancent dans le <a href="https://github.com/yongfu-li/eda-learning">dépôt du cours</a>, depuis <code>courses/learn_placement/module02-07-sa-placement/</code>.</p>
+      <div class="files">
+        <a href="../examples/tiny_place.json" download><code>tiny_place.json</code><small>Les six cellules, les six réseaux et le placement de départ (52)</small></a>
+<a href="../examples/sa_place_check.py" download><code>sa_place_check.py</code><small>Vérificateur ; --impl contrôle votre code, --vs-node compare avec JavaScript</small></a>
+<a href="../examples/sa_node.mjs" download><code>sa_node.mjs</code><small>Le même recuit en JavaScript (utilisé par --vs-node)</small></a>
+<a href="../examples/trace_seed42_60.json" download><code>trace_seed42_60.json</code><small>Graine 42, 60 mouvements, tous les mouvements : l&#x27;exécution des leçons</small></a>
+<a href="../examples/trace_seed199_60.json" download><code>trace_seed199_60.json</code><small>Graine 199 : finit pire que le départ</small></a>
+<a href="../examples/trace_seed162_60.json" download><code>trace_seed162_60.json</code><small>Graine 162 : une bonne exécution gâchée par son dernier mouvement</small></a>
+<a href="../examples/trace_seed42_300.json" download><code>trace_seed42_300.json</code><small>Graine 42, 300 mouvements : 2.6 et un tas de cellules</small></a>
+<a href="../examples/seeds_1_200.json" download><code>seeds_1_200.json</code><small>Graines 1 à 200 : meilleur, dernier, acceptés, refusés</small></a>
+      </div>
+      <div class="card md">
+        <h1>Exemples — placement par recuit simulé</h1>
+<p>Parcours A (implémentation). L'instance est <code>examples/tiny_place.json</code> (six cellules A à F, six réseaux), le corrigé est
+<code>examples/sa_place_check.py</code>, et les exécutions sont dans <code>examples/trace_*.json</code> et <code>examples/seeds_1_200.json</code>.
+Chaque nombre ci-dessous a été imprimé par ce vérificateur (<code>python3 examples/sa_place_check.py --show</code>, <code>--json</code>).
+Lancez-le depuis le dossier de ce module ; il n'a besoin que de la bibliothèque standard de Python (<code>--vs-node</code> demande aussi <code>node</code>).</p>
+<h2>Objectif</h2>
+<p>Déplacer les cellules par petits sauts, et garder le saut quand les fils raccourcissent, <strong>ou, parfois, quand ils s'allongent</strong>.
+Cette seconde partie est toute l'idée du recuit simulé : une méthode qui ne fait que descendre reste coincée, une méthode qui
+monte parfois (de moins en moins souvent à mesure que la <strong>température</strong> T baisse) peut s'en sortir. Le coût est le <strong>HPWL</strong>, et
+la réponse est le <strong>meilleur</strong> placement vu, pas le dernier.</p>
+<h2>Définitions</h2>
+<ul>
+<li><strong>Cellule</strong> : un point <code>(x, y)</code> avec un nom. Six cellules, A à F, toujours listées <strong>dans cet ordre</strong>.</li>
+<li><strong>Réseau</strong> : la liste des cellules qu'un fil relie. Réseaux : A–B, C–D, A–C, B–D, A–B–C–D (4 broches), E–F.</li>
+<li><strong>HPWL</strong> d'un réseau = (plus grand x − plus petit x) + (plus grand y − plus petit y) de ses cellules. <strong>Coût = la somme sur les six
+  réseaux, chaque réseau compté une fois avec le poids 1.</strong> Les poids de <code>tiny_place.json</code> (le réseau 4 compte 5) servent au lab de
+  timing et ne sont <strong>pas</strong> utilisés ici. Placement de départ : A (0,0) B (8,0) C (0,8) D (8,8) E (4,4) F (0,4) donne <strong>52</strong>.</li>
+<li><strong>Mouvement</strong> : choisir une cellule, un axe et un sens, la faire sauter de 0.5 à 1.5 (pas un entier), ramener le résultat dans les <strong>murs</strong>
+  −1…9. Δ (écrit <code>dHpwl</code> dans les fichiers) = HPWL après − HPWL avant.</li>
+<li><strong>Température T</strong> : commence à 3 et est multipliée par 0.94 <strong>après chaque mouvement</strong>, accepté ou non. Après 60 mouvements, elle vaut 0.0732.</li>
+<li><strong>Accepté / refusé</strong> : un mouvement qui reste / un mouvement qu'on annule. <strong>Accepté n'est pas un progrès</strong> : sur les 44 mouvements acceptés
+  de la graine 42, 11 ont raccourci les fils, 9 les ont allongés et 24 n'ont rien changé (<strong>mouvements neutres</strong>, Δ = 0 : la cellule a bougé, aucune
+  boîte de réseau n'a changé).</li>
+<li><strong>Meilleur / dernier</strong> : le plus bas HPWL vu à un moment quelconque (et ses positions) / le HPWL du dernier placement. La fonction
+  rend le meilleur.</li>
+<li><strong>Graine</strong> : un entier qui fixe toute l'exécution. Une graine, c'est une histoire.</li>
+</ul>
+<h2>API (ce que cherche <code>--impl</code>)</h2>
+<p><code>positions</code> est <code>{cellule: {"x": .., "y": ..}}</code>, <code>cells</code> une liste de noms dans l'ordre, <code>nets</code> une liste de listes de noms.</p>
+<pre><code class="language-python">def mulberry32(seed):                      # -&gt; rand(): the next float in [0, 1)
+def total_hpwl(nets, positions):           # -&gt; float
+def sa_place(positions, cells, nets, *, moves=60, t0=3.0, cool=0.94, step=1.0, seed=42):
+    # -&gt; {&quot;positions&quot;: BEST positions, &quot;hpwl&quot;: BEST hpwl, &quot;accepted&quot;: int, &quot;rejected&quot;: int, &quot;final_hpwl&quot;: float}
+</code></pre>
+<p>Mêmes signatures que <code>common/solvers.py</code>, pour comparer votre fonction avec celle du cours. Les fonctions que vous n'avez pas
+encore écrites sont signalées SKIP. Ne modifiez jamais les <code>positions</code>, <code>cells</code> ou <code>nets</code> qu'on vous donne.</p>
+<h2>Les règles (écrites exactement ; le code du cours ne les avait jamais écrites)</h2>
+<ul>
+<li><strong>Nombres aléatoires</strong> : <code>mulberry32(seed)</code>, le petit générateur de <code>placement-core.js</code>, <strong>sans tirage d'échauffement</strong> : le premier
+  appel rend le premier nombre. La graine 42 donne 0.6011, 0.4483, 0.8525, 0.6697, 0.1748. Évitez les graines 0 et 1 dans vos propres tests :
+  le deuxième nombre de la graine 1 est 0.0027, donc le premier axe est toujours x.</li>
+<li><strong>Un mouvement utilise quatre nombres, dans cet ordre</strong> : <code>r1</code> choisit la cellule <code>cells[floor(r1 * 6)]</code> (uniforme, selon l'ordre de la liste) ;
+  <code>r2 &lt; 0.5</code> veut dire axe x, sinon y ; <code>r3 &lt; 0.5</code> veut dire moins, sinon plus ; <code>r4</code> donne la taille <code>1.0 * (0.5 + r4)</code>.
+  La nouvelle coordonnée est ramenée dans −1…9 (les deux coordonnées de cette cellule).</li>
+<li><strong>Test</strong> : si Δ ≤ 0, le mouvement est accepté <strong>et aucun nombre aléatoire n'est tiré</strong>. Sinon, tirez <code>u</code> (le cinquième nombre) et acceptez
+  quand <code>u &lt; e^(−Δ / T)</code>.</li>
+<li><strong>Comptabilité</strong> : si accepté, <code>cur = HPWL après</code> ; si <code>cur &lt; best</code> <strong>strictement</strong>, <code>best</code> et les meilleures positions sont mis à jour.
+  Puis <code>T = T * 0.94</code>, toujours.</li>
+<li><strong>Résultat</strong> : meilleures positions, meilleur HPWL, acceptés, refusés (et le HPWL final).</li>
+<li><strong>Nombre de tirages</strong> pour la graine 42 : 4 × 60 + 25 (un par proposition qui aggrave) = <strong>265</strong>.</li>
+<li><strong>L'ordre des cellules fait partie de la spécification</strong> : la même graine avec les cellules listées F…A est une autre exécution (40.7859).</li>
+<li><strong>Toutes les cellules bougent, les plots aussi.</strong> <code>tiny_place.json</code> appelle A et D des « plots fixes », mais ce recuit ne les fige jamais
+  (figer les plots est la règle des labs analytiques). Pour la graine 42, 20 des 60 propositions portaient sur A ou D et 17 ont été acceptées.</li>
+</ul>
+<p>Pseudo-code (il remplace l'ancienne ligne <code>ΔHPWL&lt;0</code> du lab : avec <code>&lt;</code>, le même code donne 35.39, pas 49.58) :</p>
+<pre><code class="language-text">INPUT: start positions, cells in order, nets, seed, moves=60, T=3, cool=0.94
+cur = HPWL(start); best = cur; best_pos = start
+for move in 1..moves:
+  cell = cells[floor(r1 * n)];  axis = x if r2 &lt; 0.5 else y;  sign = -1 if r3 &lt; 0.5 else +1
+  new = old + sign * (0.5 + r4);  clamp the cell's x and y to [-1, 9]
+  delta = HPWL(after) - cur
+  if delta &lt;= 0:  accept                       # not worse: no dice
+  else:           u = next number;  accept if u &lt; exp(-delta / T)
+  if accepted:    cur = HPWL(after);  if cur &lt; best: best = cur; best_pos = positions
+  T = T * cool
+OUTPUT: best_pos, best, accepted, rejected
+GOLDEN seed=42, 60 moves -&gt; best 49.5755 at move 45, final 49.5755, accepted 44, rejected 16
+</code></pre>
+<h2>La probabilité d'accepter un mouvement pire, e^(−Δ / T)</h2>
+<table>
+<thead>
+<tr>
+<th>Δ \ T</th>
+<th>3.0000 (départ)</th>
+<th>1.6158 (mouvement 10)</th>
+<th>0.4688 (mouvement 30)</th>
+<th>0.0732 (fin)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>0.8465</td>
+<td>0.7339</td>
+<td>0.3442</td>
+<td>0.0011</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td>0.7165</td>
+<td>0.5386</td>
+<td>0.1185</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>3.0</td>
+<td>0.3679</td>
+<td>0.1562</td>
+<td>0.0017</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>6.0</td>
+<td>0.1353</td>
+<td>0.0244</td>
+<td>0.0000</td>
+<td>0.0000</td>
+</tr>
+</tbody>
+</table>
+<p>Mêmes fils, même Δ : audacieux au début, prudent à la fin. Le premier mouvement de la graine 42 est la cellule avec Δ = 3, T = 3.</p>
+<h2>Référence 1 — graine 42, 60 mouvements (l'exécution du lab dans le navigateur)</h2>
+<p>Mouvement 1 à la main : <code>r1 = 0.6011</code> → cellule D ; <code>r2 = 0.4483</code> → axe x ; <code>r3 = 0.8525</code> → plus ; <code>r4 = 0.6697</code> → taille 1.1697.
+D passe de x = 8 à 9.1697, le mur l'arrête à <strong>x = 9</strong>. Les réseaux C–D, B–D et A–B–C–D deviennent chacun plus larges de 1 : Δ = <strong>+3</strong>
+(HPWL 52 → 55). p = e^(−3/3) = <strong>0.3679</strong> ; le tirage <code>u = 0.1748</code> est en dessous : <strong>accepté</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Grandeur</th>
+<th>Valeur</th>
+<th>Pourquoi c'est important</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HPWL de départ</td>
+<td>52</td>
+<td>A, B, C, D dans les quatre coins</td>
+</tr>
+<tr>
+<td>meilleur HPWL</td>
+<td><strong>49.5755</strong> (le lab affiche 49.6)</td>
+<td>la valeur exacte ; le lab arrondit à une décimale</td>
+</tr>
+<tr>
+<td>meilleur atteint au</td>
+<td>mouvement <strong>45</strong> (B y −0.794 → 0.467, Δ = −3.782)</td>
+<td>et jamais battu après</td>
+</tr>
+<tr>
+<td>HPWL final</td>
+<td>49.5755 = meilleur</td>
+<td>pour cette graine seulement ; voir la référence 2</td>
+</tr>
+<tr>
+<td>acceptés / refusés</td>
+<td><strong>44 / 16</strong></td>
+<td>des entiers exacts, pas « environ »</td>
+</tr>
+<tr>
+<td>sur les 44 acceptés</td>
+<td><strong>11 meilleurs, 9 pires, 24 neutres</strong></td>
+<td>accepté n'est pas un progrès</td>
+</tr>
+<tr>
+<td>sur les 60 propositions</td>
+<td>11 meilleures, 25 pires, 24 neutres</td>
+<td>les 16 refusées sont toutes parmi les 25 pires</td>
+</tr>
+<tr>
+<td>mouvements arrêtés par un mur</td>
+<td><strong>10</strong> (5 acceptés : mouvements 1, 2, 4, 13, 50 ; 5 refusés : 20, 22, 27, 37, 60)</td>
+<td>la limite fait partie de la spécification : sans elle, 42.4127</td>
+</tr>
+<tr>
+<td>HPWL le plus haut pendant l'exécution</td>
+<td>58.5768 (mouvement 13)</td>
+<td>l'exécution monte d'abord depuis 52, puis descend</td>
+</tr>
+<tr>
+<td>(HPWL, T) aux mouvements 0, 10…60</td>
+<td>(52, 3) (57.35, 1.616) (56.59, 0.870) (56.87, 0.469) (53.36, 0.252) (49.58, 0.136) (49.58, 0.073)</td>
+<td><code>history</code> de <code>saPlace</code> (le lab trace chaque mouvement)</td>
+</tr>
+<tr>
+<td>nombres tirés</td>
+<td><strong>265</strong> = 4 × 60 + 25</td>
+<td>un portage qui tire quand Δ = 0 dérive</td>
+</tr>
+<tr>
+<td>propositions sur les plots A, D</td>
+<td>20, dont 17 acceptées</td>
+<td>A finit en (0, 1.99), D en (5.76, 9)</td>
+</tr>
+<tr>
+<td>meilleures positions</td>
+<td>A (0, 1.9895) B (7.2157, 0.4666) C (2.7113, 6.0676) D (5.7591, 9) E (4, 4.9394) F (1.9499, 5.2174)</td>
+<td>ce que rend la fonction</td>
+</tr>
+</tbody>
+</table>
+<p>Quelques mouvements à lire dans <code>--show</code> : le mouvement 15 (A va en x = −0.98, Δ = 2.945, p = 0.097, u = 0.612 : <strong>refusé</strong>) ;
+le mouvement 17 (Δ = 0.082, p = 0.929 : une aggravation anodine <strong>acceptée</strong>) ; le mouvement 43 (Δ = 4.453, T = 0.223, p = 0.0000 : <strong>refusé</strong>).</p>
+<h2>Référence 2 — le meilleur n'est pas le dernier (graines 199 et 162)</h2>
+<table>
+<thead>
+<tr>
+<th>Graine</th>
+<th>Meilleur</th>
+<th>Atteint au</th>
+<th>Dernier</th>
+<th>Acceptés / refusés</th>
+<th>HPWL max</th>
+<th>Ce que ça montre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>42</td>
+<td>49.5755</td>
+<td>mouvement 45</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>58.58</td>
+<td>les deux sont égaux par hasard</td>
+</tr>
+<tr>
+<td><strong>199</strong></td>
+<td><strong>52.0000</strong> = le départ</td>
+<td><strong>jamais</strong></td>
+<td><strong>53.8714</strong></td>
+<td>37 / 23</td>
+<td>60.46</td>
+<td>37 mouvements acceptés, aucun ne bat le départ ; le dernier est <strong>pire que le départ</strong> ; la fonction doit rendre le départ</td>
+</tr>
+<tr>
+<td><strong>162</strong></td>
+<td>27.7525</td>
+<td>mouvement 59</td>
+<td>27.8871</td>
+<td>41 / 19</td>
+<td>55.19</td>
+<td>une bonne exécution gâchée par son dernier mouvement (E y +0.82, Δ = +0.135, p = 0.178, u = 0.091)</td>
+</tr>
+</tbody>
+</table>
+<p>Sur les graines 1…200, le HPWL final est pire que le meilleur pour <strong>9</strong> graines : 6, 13, 54, 102, 118, 149, 156, 162 et 199.</p>
+<h2>Référence 3 — une graine, une histoire (graines 1…200, 60 mouvements chacune)</h2>
+<table>
+<thead>
+<tr>
+<th>Grandeur</th>
+<th>Valeur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>meilleur HPWL, le plus bas</td>
+<td><strong>13.7292</strong> (graine 134)</td>
+</tr>
+<tr>
+<td>meilleur HPWL, le plus haut</td>
+<td><strong>52.0000</strong> (graine 199)</td>
+</tr>
+<tr>
+<td>médiane des 200 meilleures valeurs</td>
+<td><strong>36.0428</strong></td>
+</tr>
+<tr>
+<td>cinq meilleures graines</td>
+<td>134 : 13.7292, 114 : 15.0626, 75 : 15.5504, 84 : 20.1749, 60 : 20.6920</td>
+</tr>
+<tr>
+<td>graines qui battent la graine 42</td>
+<td><strong>197</strong> sur 200 (seules les graines 62 : 49.9431 et 199 : 52.0000 sont pires)</td>
+</tr>
+<tr>
+<td>graines qui ne battent jamais le départ</td>
+<td>1 (graine 199)</td>
+</tr>
+</tbody>
+</table>
+<p>La graine 42 est la <strong>troisième plus mauvaise</strong> des 200 exécutions. C'est l'histoire reproductible utilisée partout dans ce lab ; pour juger une
+méthode aléatoire, regardez beaucoup d'exécutions. Le tableau par graine est <code>examples/seeds_1_200.json</code>.</p>
+<h2>Référence 4 — ce que le coût ne sait pas (300 et 1000 mouvements)</h2>
+<table>
+<thead>
+<tr>
+<th>Exécution</th>
+<th>Meilleur HPWL</th>
+<th>Acceptés / refusés</th>
+<th>Débordement des cases 2×2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>départ</td>
+<td>52</td>
+<td>–</td>
+<td>2</td>
+</tr>
+<tr>
+<td>placement « référence compact » de <code>tiny_place.json</code></td>
+<td>14</td>
+<td>–</td>
+<td>2</td>
+</tr>
+<tr>
+<td>SA graine 42, 60 mouvements</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>2</td>
+</tr>
+<tr>
+<td>SA graine 42, <strong>300 mouvements</strong> (meilleur au mouvement 278)</td>
+<td><strong>2.6119</strong></td>
+<td>104 / 196</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>SA graine 42, 1000 mouvements</td>
+<td>2.3814</td>
+<td>107 / 893</td>
+<td>–</td>
+</tr>
+<tr>
+<td>les six cellules sur un seul point (4, 4)</td>
+<td><strong>0</strong></td>
+<td>–</td>
+<td>5</td>
+</tr>
+<tr>
+<td>le placement <code>overlap</code> de <code>tiny_place.json</code></td>
+<td>24</td>
+<td>–</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>Le HPWL n'a pas de règle de chevauchement : l'exécution de 300 mouvements finit <strong>très en dessous de la « référence 14 »</strong>, donc 14 n'est pas un
+plancher, et avec A, B, C, D à moins de 0.5 les uns des autres, ses cases sont plus chargées qu'au départ. Le HPWL seul adore empiler les
+cellules ; le lab sur la densité corrige cela. (Cases : 2×2 sur 0…8, capacité 1 cellule par case ; débordement = les cellules au-dessus de la capacité.)</p>
+<h2>Pièges — un portage qui casse une règle écrite (graine 42, 60 mouvements)</h2>
+<table>
+<thead>
+<tr>
+<th>Portage</th>
+<th>Meilleur</th>
+<th>Acceptés / refusés</th>
+<th>Nombres tirés</th>
+<th>Détecté par la référence ?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>les règles ci-dessus</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td>–</td>
+</tr>
+<tr>
+<td>accepter seulement quand Δ <strong>&lt; 0</strong> (l'ancien pseudo-code), tirer sinon</td>
+<td><strong>35.3928</strong></td>
+<td>46 / 14</td>
+<td>282</td>
+<td>oui</td>
+</tr>
+<tr>
+<td>tirer <code>u</code> à chaque mouvement, même quand Δ ≤ 0</td>
+<td>35.7737</td>
+<td>41 / 19</td>
+<td>300</td>
+<td>oui</td>
+</tr>
+<tr>
+<td>pas de murs à −1…9</td>
+<td>42.4127</td>
+<td>39 / 21</td>
+<td>266</td>
+<td>oui</td>
+</tr>
+<tr>
+<td>pas entier 1 au lieu de 0.5…1.5</td>
+<td>39.0000</td>
+<td>34 / 26</td>
+<td>208</td>
+<td>oui</td>
+</tr>
+<tr>
+<td>refroidir T <strong>avant</strong> le test</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td><strong>non</strong> : même exécution ici, donc l'ordre du refroidissement n'est pas contrôlé</td>
+</tr>
+<tr>
+<td>cellules listées F…A</td>
+<td>40.7859</td>
+<td>39 / 21</td>
+<td>–</td>
+<td>oui</td>
+</tr>
+<tr>
+<td>réseaux inversés, ou dictionnaire des positions dans un autre ordre de clés</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td>même exécution : permis</td>
+</tr>
+</tbody>
+</table>
+<p>Tous ces portages ont l'air fidèles et sont tous des programmes différents. C'est pourquoi les règles sont écrites.</p>
+<h2>Exploration (PAS une référence) : <code>--freeze A,D</code></h2>
+<p><code>python3 examples/sa_place_check.py --show --freeze A,D</code> garde les plots où ils sont. La cellule qui bouge est choisie <strong>parmi les cellules non
+figées seulement, dans l'ordre A…F</strong> : <code>cell = free[floor(r1 * n_free)]</code> avec <code>free = [B, C, E, F]</code>. Même graine, 60 mouvements :
+meilleur <strong>51.0964</strong> (mouvement 59), 45 acceptés / 15 refusés. C'est une expérience, pas un nombre sur lequel le lab ou le quiz s'appuie.</p>
+<h2>Fichiers d'exécution pour les leçons animées (<code>--json</code>)</h2>
+<p><code>python3 examples/sa_place_check.py --json --seed 42 --moves 60</code> imprime une exécution ; <code>--write-examples</code> réécrit les fichiers
+<code>examples/trace_seed42_60.json</code>, <code>trace_seed199_60.json</code>, <code>trace_seed162_60.json</code>, <code>trace_seed42_300.json</code> et
+<code>seeds_1_200.json</code>. <code>--vs-node</code> les régénère avec le JavaScript du lab dans le navigateur et compare.</p>
+<p>En-tête : <code>seed, moves, t0, cool, step, frozen, cells (in order), nets, walls {min -1, max 9}, hpwl_start, net_hpwl_start (one
+value per net, in the order of nets), start, best, best_move (null when the run never beat the start), final,
+best_positions, final_positions, accepted, rejected, draws, accepted_by_kind, proposed_by_kind, clamped, peak, history</code>.</p>
+<p><code>moves_list</code> a un objet par mouvement : <code>move</code> (à partir de 1), <code>cell</code>, <code>axis</code>, <code>from</code> et <code>to</code> (la position de la cellule avant et après
+la limite ; pour un mouvement refusé, <code>to</code> est la position essayée), <code>proposed</code> (la coordonnée avant la limite), <code>clamped</code>,
+<code>delta</code> (le saut signé), <code>dHpwl</code> (le changement de coût, Δ), <code>T</code> (avant le refroidissement), <code>p</code> (probabilité d'acceptation, 1 quand Δ ≤ 0), <code>u</code>
+(<strong>null quand aucun nombre n'a été tiré</strong>), <code>accepted</code>, <code>newBest</code>, <code>hpwl</code> (actuel), <code>best</code>, et <code>kind</code> (<code>better</code>, <code>worse</code> ou <code>free</code>,
+d'après le signe de Δ). Les flottants sont en pleine précision ; <code>p</code> s'accorde entre Python et JavaScript à 1e-12 près (<code>exp</code> diffère au dernier bit).</p>
+<h2>À essayer</h2>
+<pre><code class="language-bash">python3 examples/sa_place_check.py                          # all PASS
+python3 examples/sa_place_check.py --show                   # rules, every move of seed 42, every table above
+python3 examples/sa_place_check.py --show --seed 199        # the run that ends worse than the start
+python3 examples/sa_place_check.py --show --seed 162        # the good run spoiled by its last move
+python3 examples/sa_place_check.py --show --seed 42 --moves 300
+python3 examples/sa_place_check.py --impl my_sa.py          # YOUR mulberry32, total_hpwl, sa_place
+python3 examples/sa_place_check.py --impl examples/wrong/strict_less.py   # FAIL on purpose (35.393)
+python3 examples/sa_place_check.py --vs-node                # JavaScript and Python agree, bit for bit
+</code></pre>
+<p><code>examples/wrong/</code> contient trois programmes qui cassent chacun une règle (<code>strict_less.py</code>, <code>draw_every_move.py</code>, <code>no_clamp.py</code>).
+Ils doivent ÉCHOUER sur la ligne de la graine 42 ; lisez la valeur <code>got</code> et trouvez quelle règle elle casse.</p>
+<h2>Questions de départ (demandez pourquoi)</h2>
+<ol>
+<li>Implémentez <code>mulberry32</code>, <code>total_hpwl</code> et <code>sa_place</code> à partir des règles ci-dessus, et lancez <code>--impl</code>. Quelle ligne échoue en premier si vous
+   écrivez <code>delta &lt; 0</code>, et quel nombre obtenez-vous à la place de 49.5755 ?</li>
+<li>Pour la graine 42, le premier mouvement est accepté avec la probabilité 0.3679. Calculez-la à la main à partir de Δ = 3 et T = 3.</li>
+<li>Sur 44 mouvements acceptés, seulement 11 ont raccourci les fils. Nommez les deux autres groupes et dites en une phrase pourquoi les 24 mouvements
+   « neutres » ne changent pas le HPWL.</li>
+<li>La graine 199 accepte 37 mouvements et rend quand même le départ. Quelle ligne de votre code produit cela ?</li>
+<li>La graine 134 atteint 13.73, sous la « référence » 14, et 300 mouvements atteignent 2.61. Pourquoi un placement de HPWL 2.61 n'est-il pas un bon placement ?</li>
+<li>Lancez <code>--show --freeze A,D</code>. Les plots restent en place et le résultat est pire que l'exécution sans gel. Est-ce une règle de ce
+   recuit ou une expérience ?</li>
+</ol>
+<h2>Livrables attendus</h2>
+<ul>
+<li>Un fichier avec <code>mulberry32</code>, <code>total_hpwl</code> et <code>sa_place</code> et une exécution <code>--impl</code> propre (aucun FAIL)</li>
+<li>La ligne de la graine 42 : meilleur, acceptés, refusés, et le mouvement où le meilleur a été atteint</li>
+<li>Une phrase pour chacune des questions 2 à 5 ci-dessus</li>
+</ul>
+<h2>Pour aller plus loin</h2>
+<p>Comptez les nombres aléatoires que votre <code>sa_place</code> tire pour la graine 42 (il doit y en avoir 265). Puis changez le test en <code>delta &lt; 0</code> et comptez
+de nouveau : le nombre de tirages et le meilleur HPWL bougent tous les deux, ce qui explique pourquoi la règle est écrite <code>delta &lt;= 0</code>.</p>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <h2>Quiz</h2>
+      <p>8 questions rapides sur ce lab. Choisissez une réponse pour chacune, puis vérifiez.</p>
+      <div class="card quiz" id="quiz-root"
+           data-check="Vérifier mes réponses" data-reset="Recommencer" data-pass="réussi"
+           data-fail="réessayez" data-true="Vrai" data-false="Faux"></div>
+      <script type="application/json" id="quiz-data">{"id": "module02-07-sa-placement", "title": "Quiz sur le placement par recuit simulé", "passing_score": 0.67, "items": [{"id": "q1", "type": "multiple_choice", "prompt": "Graine 42, mouvement 1 : la cellule D saute vers la droite et le mur l'arrête à x = 9. Les fils s'allongent de 3 (HPWL 52 → 55) et T vaut 3. Quelle est la chance que le mouvement soit accepté ?", "choices": ["0 (un fil plus long est toujours refusé)", "0.37", "0.63", "1 (le premier mouvement est toujours accepté)"], "answer": 1, "explain": "p = e^(−Δ/T) = e^(−3/3) = 0.3679. L'exécution tire u = 0.1748, en dessous de 0.3679, donc le mouvement est accepté. Seul un mouvement qui n'est pas pire (Δ ≤ 0) est accepté à coup sûr."}, {"id": "q2", "type": "true_false", "prompt": "Un mouvement avec Δ = 0 (aucune boîte de réseau ne change) doit passer le test aléatoire, donc il utilise un nombre aléatoire comme un mouvement qui aggrave.", "answer": false, "explain": "Δ ≤ 0 est accepté sans rien tirer. La graine 42 tire 4 × 60 + 25 = 265 nombres : quatre par mouvement plus un pour chacune des 25 propositions qui aggravent. Un portage qui n'accepte que Δ < 0 tire à chaque mouvement avec Δ = 0 et obtient 35.393 au lieu de 49.576."}, {"id": "q3", "type": "multiple_choice", "prompt": "La graine 42 accepte 44 de ses 60 mouvements. Parmi ces 44, combien ont diminué le HPWL ?", "choices": ["44", "24", "11", "9"], "answer": 2, "explain": "11 ont raccourci les fils, 9 les ont allongés (acceptés par le dé) et 24 n'ont rien changé (mouvements neutres, Δ = 0) : 11 + 9 + 24 = 44. Les 16 mouvements refusés étaient tous parmi les 25 propositions qui aggravent. Accepté n'est pas un progrès."}, {"id": "q4", "type": "multiple_choice", "prompt": "Un mouvement qui allonge les fils de 0.5 : quelle est la chance de l'accepter au début (T = 3) et à la fin des 60 mouvements (T = 0.0732) ?", "choices": ["0.85 au début, 0.001 à la fin", "0.85 au début, 0.85 à la fin", "0.37 au début, 0.001 à la fin", "1 au début, 0 à la fin"], "answer": 0, "explain": "e^(−0.5/3) = 0.8465 et e^(−0.5/0.0732) = 0.0011. T est multipliée par 0.94 après chaque mouvement (3 × 0.94^60 = 0.0732), donc la même aggravation est presque toujours prise au début et presque jamais à la fin."}, {"id": "q5", "type": "multiple_choice", "prompt": "La graine 199 accepte 37 mouvements, dont aucun ne passe jamais sous le départ (52), et le dernier placement a un HPWL de 53.871. Que rend sa_place ?", "choices": ["Le dernier placement, HPWL 53.871", "Le placement de départ, HPWL 52.000", "Le placement après le mouvement 37", "Une erreur : l'exécution n'a rien trouvé"], "answer": 1, "explain": "La fonction rend le meilleur placement vu, et le meilleur est le départ (un nouveau meilleur demande cur < best strictement). Le placement final est 1.871 plus mauvais que le départ. La graine 162 est le cas doux : meilleur 27.753 au mouvement 59, dernier 27.887."}, {"id": "q6", "type": "true_false", "prompt": "La graine 42 donne 49.6, donc sur cette instance une exécution de recuit de 60 mouvements doit normalement finir près de 49.6.", "answer": false, "explain": "La graine 42 est la troisième plus mauvaise des graines 1 à 200. 197 des 200 graines font mieux ; les meilleures valeurs vont de 13.729 (graine 134) à 52.000 (graine 199) avec une médiane de 36.043. Une graine, c'est une histoire : jugez une méthode aléatoire sur beaucoup d'exécutions."}, {"id": "q7", "type": "multiple_choice", "prompt": "300 mouvements avec la graine 42 atteignent un HPWL de 2.612, très en dessous du placement « de référence » de 14. Pourquoi n'est-ce pas un meilleur placement ?", "choices": ["Le recuit est cassé : le HPWL ne peut pas descendre sous 14", "Le HPWL n'a pas de règle de chevauchement, donc les cellules s'empilent (A, B, C, D finissent à moins de 0.5 les unes des autres ; débordement des cases 4 contre 2 au départ)", "300 mouvements sont trop peu pour que le résultat compte", "Les 2.612 viennent du placement final, pas du meilleur"], "answer": 1, "explain": "Rien dans le coût ne tient les cellules à distance : six cellules sur un seul point donneraient un HPWL de 0 (débordement des cases 5). Donc 14 n'est pas un plancher et un HPWL bas ne suffit pas à faire un bon placement. Un terme de densité, le module suivant, est la pièce manquante."}, {"id": "q8", "type": "true_false", "prompt": "tiny_place.json liste A et D comme plots fixes, donc dans le recuit de ce lab les cellules A et D ne bougent jamais.", "answer": false, "explain": "Ce recuit déplace toutes les cellules. Pour la graine 42, 20 des 60 propositions portent sur A ou D et 17 sont acceptées : A finit en (0, 1.99) et D en (5.76, 9). Les figer (--freeze A,D, une expérience) donne 51.096 au lieu de 49.576."}]}</script>
+    </section>
+
+    <section id="transcript">
+      <details class="card transcript">
+        <summary>Transcription complète de la narration</summary>
+        <h3>Recuit simulé pour le placement</h3><p>Pourquoi garder un mouvement qui aggrave les choses ? Une petite puce va vous le montrer. Six cellules y sont posées, reliées par des fils. Notre travail : déplacer les cellules pour raccourcir les fils.</p>
+<h3>Cellules et réseaux</h3><p>Chaque cellule est un petit bloc de logique. Un placement dit où chaque cellule se trouve sur la puce. Nos cellules s&#x27;appellent de A à F. Des fils relient les cellules par groupes, appelés réseaux. Cette puce a six réseaux.</p>
+<h3>Mesurer un réseau avec une boîte</h3><p>Dessinez la plus petite boîte autour des cellules d&#x27;un réseau. La largeur de la boîte plus sa hauteur mesure ce réseau. C&#x27;est proche de la vraie longueur des fils. Et c&#x27;est rapide à calculer. Cette mesure s&#x27;appelle la longueur de fil par demi-périmètre.</p>
+<h3>Cinquante-deux au départ</h3><p>Au départ, quatre réseaux mesurent huit chacun. Le réseau qui relie A, B, C et D mesure seize. Le réseau de E et F mesure quatre. Additionnez : la longueur de fil est de cinquante-deux.</p>
+<h3>Descendre dans le brouillard</h3><p>Un plan simple : déplacer une cellule un peu, et garder le mouvement seulement si les fils raccourcissent. C&#x27;est comme descendre une colline dans un épais brouillard. Vous n&#x27;avez pas de carte : vous sentez seulement la pente sous vos pieds. Vous vous arrêtez dans le premier creux que vous trouvez. Une vallée plus profonde est peut-être juste derrière la prochaine colline.</p>
+<h3>Parfois, monter</h3><p>Le recuit simulé est plus audacieux : il garde parfois un mouvement qui aggrave les choses. Son nom vient du travail des métaux. Un forgeron refroidit lentement un métal chaud, pour que ses atomes se rangent en un ordre solide. Faites une pause et devinez : le premier mouvement allonge les fils de trois. On le garde, ou non ?</p>
+<h3>Un mouvement, de près</h3><p>Parfois, et c&#x27;est un lancer de dé qui décide. Regardons ce premier mouvement, pas à pas.</p>
+<h3>Choisir, pousser, mesurer</h3><p>Le recuit choisit une cellule au hasard : D. Il choisit une direction au hasard : vers la droite. Il choisit aussi un petit pas, au hasard. D sortirait de la puce, mais le mur l&#x27;arrête. Mesurons maintenant : les fils sont devenus plus longs de trois.</p>
+<h3>Pire ? Lancez le dé</h3><p>Le mouvement est pire, donc le recuit lance un dé. La chance de garder ce mouvement est de trente-sept pour cent. Ce dé donne un nombre plus petit que un. Le dé affiche zéro virgule dix-sept. C&#x27;est en dessous de zéro virgule trente-sept. Le mouvement est donc accepté, et D reste contre le mur.</p>
+<h3>Un mouvement neutre</h3><p>Au deuxième mouvement, D est de nouveau poussé contre le mur. Il ne peut pas aller plus loin, donc aucun fil ne change. Un mouvement qui n&#x27;est pas pire est toujours accepté, sans aucun dé. On l&#x27;appelle un mouvement neutre.</p>
+<h3>Ce qui fixe la chance</h3><p>La chance dépend de deux choses. La première, c&#x27;est de combien le mouvement est pire. Au départ, un de plus en longueur donne soixante-douze pour cent. Trois de plus donnent trente-sept pour cent. Six de plus ne donnent que quatorze pour cent. La deuxième est un nombre appelé la température. Elle commence à trois.</p>
+<h3>Même mouvement, plus froid</h3><p>La température baisse pendant l&#x27;exécution. Plus tard, elle est descendue à un virgule quatre. D est de nouveau poussé contre un mur, et les fils s&#x27;allongent de trois. Faites une pause et devinez : la chance est-elle plus grande, plus petite ou la même qu&#x27;avant ?</p>
+<h3>Plus petite : douze pour cent</h3><p>Plus petite : seulement douze pour cent. Le dé affiche zéro virgule zéro neuf, donc le mouvement passe quand même. Quelle chance ! Les fils atteignent cinquante-huit virgule six, le plus long de toute cette exécution.</p>
+<h3>Du chaud au froid</h3><p>La température baisse un peu après chaque mouvement. Elle commence à trois, et finit près de zéro virgule zéro sept. Comme le métal du forgeron, l&#x27;exécution refroidit lentement. Chaud veut dire audacieux : beaucoup de mouvements pires passent. Froid veut dire difficile : les mouvements pires ne passent presque jamais.</p>
+<h3>Soixante mouvements</h3><p>Regardez maintenant le reste des soixante mouvements. Tant qu&#x27;il fait chaud, les fils restent longs. En refroidissant, ils raccourcissent. Au mouvement quarante-cinq, ils atteignent quarante-neuf virgule six.</p>
+<h3>Le dernier mouvement</h3><p>Le tout dernier mouvement pousse A contre un mur : de nouveau trois de plus. Il fait froid maintenant, sous zéro virgule un. La chance est nulle, donc le mouvement est refusé.</p>
+<h3>Accepté n&#x27;est pas un progrès</h3><p>Au total, quarante-quatre mouvements ont été acceptés, et seize ont été refusés. Mais seulement onze mouvements acceptés ont raccourci les fils. Neuf les ont allongés. Vingt-quatre étaient des mouvements neutres. Accepté ne veut pas dire meilleur.</p>
+<h3>Dernier ou meilleur ?</h3><p>Faites une pause et devinez : après soixante mouvements, les derniers fils sont-ils aussi les plus courts de l&#x27;exécution ?</p>
+<h3>Oui, cette fois</h3><p>Cette fois, oui. Après le mouvement quarante-cinq, rien ne bat quarante-neuf virgule six. Rien ne l&#x27;aggrave non plus. Mais c&#x27;est de la chance. Chaque choix aléatoire vient d&#x27;une graine : un nombre qui fixe tous les lancers de dé. Notre exécution utilise la graine quarante-deux.</p>
+<h3>Graine cent quatre-vingt-dix-neuf</h3><p>La graine cent quatre-vingt-dix-neuf raconte une autre histoire. Ses fils montent au-dessus de soixante dès le début. Ils ne repassent jamais sous le départ, cinquante-deux. L&#x27;exécution se termine à cinquante-trois virgule neuf, pire qu&#x27;au début.</p>
+<h3>Graine cent soixante-deux</h3><p>La graine cent soixante-deux fait beaucoup mieux. Au mouvement cinquante-neuf, elle atteint vingt-sept virgule huit. Puis le dernier mouvement allonge un peu les fils. Le dé le laisse passer. L&#x27;exécution se termine à vingt-sept virgule neuf.</p>
+<h3>Garder le meilleur</h3><p>Alors le recuit garde une copie du meilleur placement qu&#x27;il a vu. À la fin, il rend cette copie, pas le dernier placement. Garder cette copie ne coûte presque rien. La graine cent soixante-deux rend vingt-sept virgule huit. La graine cent quatre-vingt-dix-neuf rend le départ.</p>
+<h3>Quarante-deux est-il typique ?</h3><p>Notre graine, quarante-deux, a rendu quarante-neuf virgule six. Faites une pause et devinez : est-ce un résultat typique ?</p>
+<h3>Une graine, une histoire</h3><p>Pas du tout : c&#x27;est l&#x27;un des pires. Nous avons lancé deux cents graines, avec soixante mouvements chacune. La meilleure longueur de fil va de treize virgule sept à cinquante-deux. Le résultat du milieu est d&#x27;environ trente-six. Cent quatre-vingt-dix-sept graines battent la graine quarante-deux. Jugez donc une méthode aléatoire sur beaucoup d&#x27;exécutions, pas sur une seule.</p>
+<h3>Trois cents mouvements</h3><p>Donnons maintenant trois cents mouvements à la graine quarante-deux, au lieu de soixante. Les soixante premiers mouvements sont les mêmes, car la graine est la même. Puis les fils continuent de raccourcir, jusqu&#x27;à deux virgule six.</p>
+<h3>Ce que le coût ne sait pas</h3><p>Regardez la puce : les cellules sont les unes sur les autres. De vraies cellules ne peuvent pas se chevaucher. Mais notre coût ne mesure que les fils. Rien dedans ne dit que les cellules ont besoin de leur propre place. Pour le coût, un tas de cellules paraît parfait.</p>
+<h3>Toutes les cellules bougent</h3><p>Sur une vraie puce, A et D seraient des plots : des portes fixes vers le monde extérieur. Dans ce lab, toutes les cellules bougent, même A et D. Figer les plots est une règle pour un autre lab.</p>
+<h3>À retenir</h3><p>Un mouvement pire ne passe que si le dé le permet. Le froid rend le dé strict. Accepté ne veut pas dire meilleur. Gardez le meilleur placement, pas le dernier. Une graine, c&#x27;est une histoire. Et le coût ne connaît que ce qu&#x27;il mesure.</p>
+<h3>À vous</h3><p>Dans le lab du navigateur, lancez la graine quarante-deux avec soixante mouvements. Vous devez obtenir quarante-neuf virgule six, avec quarante-quatre mouvements acceptés et seize refusés. Le vérificateur Python lance les mêmes dés, donc il donne les mêmes nombres. Ensuite, faites glisser vous-même les cellules, et essayez de battre le recuit. Faites une pause et devinez : comment le coût pourrait-il empêcher les cellules de s&#x27;empiler ?</p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Lab 07 du cours Placement pour l'EDA, issu de l'<a href="https://github.com/yongfu-li/eda-learning">EDA Algorithms Platform</a> (CC BY 4.0). Version de relecture, pas encore intégrée au dépôt du cours.</div>
+  </footer>
+  <script>
+    // Keep the reader's place (#section) when switching language.
+    document.querySelectorAll("a.lang-switch").forEach((a) =>
+      a.addEventListener("click", () => { a.href = a.getAttribute("href").split("#")[0] + location.hash; })
+    );
+  </script>
+  <script src="../quiz.js"></script>
+</body>
+</html>

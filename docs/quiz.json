@@ -1,0 +1,93 @@
+{
+  "id": "module02-07-sa-placement",
+  "title": "Simulated annealing placement check",
+  "passing_score": 0.67,
+  "items": [
+    {
+      "id": "q1",
+      "type": "multiple_choice",
+      "prompt": "Seed 42, move 1: cell D jogs right and the wall stops it at x = 9. The wires get 3 longer (HPWL 52 → 55) and T is 3. What is the chance that the move is accepted?",
+      "choices": [
+        "0 (a longer wire is always rejected)",
+        "0.37",
+        "0.63",
+        "1 (the first move is always accepted)"
+      ],
+      "answer": 1,
+      "explain": "p = e^(−Δ/T) = e^(−3/3) = 0.3679. The run draws u = 0.1748, which is below 0.3679, so the move is accepted. Only a move that is not worse (Δ ≤ 0) is accepted for sure."
+    },
+    {
+      "id": "q2",
+      "type": "true_false",
+      "prompt": "A move with Δ = 0 (no net box changes) must pass the random test, so it uses a random number like a worsening move.",
+      "answer": false,
+      "explain": "Δ ≤ 0 is accepted without drawing anything. Seed 42 draws 4 × 60 + 25 = 265 numbers: four per move plus one for each of the 25 worsening proposals. A port that accepts only Δ < 0 draws on every Δ = 0 move and gets 35.393 instead of 49.576."
+    },
+    {
+      "id": "q3",
+      "type": "multiple_choice",
+      "prompt": "Seed 42 accepts 44 of its 60 moves. How many of those 44 made the HPWL smaller?",
+      "choices": [
+        "44",
+        "24",
+        "11",
+        "9"
+      ],
+      "answer": 2,
+      "explain": "11 shortened the wires, 9 lengthened them (accepted by the dice) and 24 changed nothing (free moves, Δ = 0): 11 + 9 + 24 = 44. The 16 rejected moves were all among the 25 worsening proposals. Accepted is not progress."
+    },
+    {
+      "id": "q4",
+      "type": "multiple_choice",
+      "prompt": "A move that makes the wires 0.5 longer: what is the chance of accepting it at the start (T = 3) and at the end of the 60 moves (T = 0.0732)?",
+      "choices": [
+        "0.85 at the start, 0.001 at the end",
+        "0.85 at the start, 0.85 at the end",
+        "0.37 at the start, 0.001 at the end",
+        "1 at the start, 0 at the end"
+      ],
+      "answer": 0,
+      "explain": "e^(−0.5/3) = 0.8465 and e^(−0.5/0.0732) = 0.0011. T falls by a factor 0.94 after every move (3 × 0.94^60 = 0.0732), so the same worsening is almost always taken at first and almost never at the end."
+    },
+    {
+      "id": "q5",
+      "type": "multiple_choice",
+      "prompt": "Seed 199 accepts 37 moves, none of which ever gets below the start (52), and the last placement has HPWL 53.871. What does sa_place return?",
+      "choices": [
+        "The last placement, HPWL 53.871",
+        "The starting placement, HPWL 52.000",
+        "The placement after move 37",
+        "An error: the run found nothing"
+      ],
+      "answer": 1,
+      "explain": "The function returns the best placement seen, and the best is the start (a new best needs cur < best strictly). The final placement is 1.871 worse than the start. Seed 162 is the mild case: best 27.753 at move 59, final 27.887."
+    },
+    {
+      "id": "q6",
+      "type": "true_false",
+      "prompt": "Seed 42 gives 49.6, so on this instance a 60-move annealing run is expected to end near 49.6.",
+      "answer": false,
+      "explain": "Seed 42 is the third-worst of seeds 1 to 200. 197 of the 200 seeds do better; the best values go from 13.729 (seed 134) to 52.000 (seed 199) with a median of 36.043. One seed is one story: judge a random method by many runs."
+    },
+    {
+      "id": "q7",
+      "type": "multiple_choice",
+      "prompt": "300 moves on seed 42 reach HPWL 2.612, far below the \"golden\" placement of 14. Why is that not a better placement?",
+      "choices": [
+        "The annealer is broken: HPWL cannot go below 14",
+        "HPWL has no overlap rule, so the cells pile up (A, B, C, D end within 0.5 of each other; bin overflow 4 against 2 at the start)",
+        "300 moves are too few for the result to count",
+        "The 2.612 comes from the final placement, not the best one"
+      ],
+      "answer": 1,
+      "explain": "Nothing in the cost keeps cells apart: six cells on one point would give HPWL 0 (bin overflow 5). So 14 is not a floor and a low HPWL alone is not a good placement. A density term, the next module, is the missing piece."
+    },
+    {
+      "id": "q8",
+      "type": "true_false",
+      "prompt": "tiny_place.json lists A and D as fixed pads, so in this lab's annealer cells A and D never move.",
+      "answer": false,
+      "explain": "This annealer moves every cell. On seed 42, 20 of the 60 proposals are on A or D and 17 are accepted: A ends at (0, 1.99) and D at (5.76, 9). Freezing them (--freeze A,D, an experiment) gives 51.096 instead of 49.576."
+    }
+  ]
+}

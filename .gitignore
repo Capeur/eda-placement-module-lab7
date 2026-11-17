@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+
+# voice caches and lesson timings (made by the lesson-animator; the built lessons in docs/ are committed)
+.cache/
+build/

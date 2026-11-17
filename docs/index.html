@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 07 — Simulated annealing placement · Placement for EDA</title>
+  <meta name="description" content="Lab 07 of the Placement for EDA course: simulated annealing placement of six cells, told in five short animated lessons, with an interactive browser lab, a Python checker and a quiz.">
+  <link rel="alternate" hreflang="fr" href="fr/index.html">
+  <link rel="preload" href="fonts/source-sans-3-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="page.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <span class="crumb">Placement for EDA · <strong>Lab 07</strong></span>
+      <nav class="toc" aria-label="On this page">
+        
+        <a href="#lab">Interactive lab</a>
+        <a href="#implement">Implement</a>
+        <a href="#quiz">Quiz</a>
+        <a href="#transcript">Transcript</a>
+        <a class="lang-switch" href="fr/index.html" hreflang="fr" lang="fr" title="Lire cette page en français">Français</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Lab 07 · Global placement</p>
+      <h1>Simulated annealing placement</h1>
+      <p class="lead">Six cells sit on a small chip, joined by six nets. Simulated annealing moves them at random, and keeps a worse move when a dice says yes, less and less often as the chip cools. This lab tells one run move by move, then lets you run it, drag cells yourself and count the moves.</p>
+    </div>
+
+    
+
+    <section id="lab">
+      <h2>Interactive lab</h2>
+      <div class="card lab-grid">
+        <a href="tools/sa-placement/index.html"><img src="img/lab-starter.webp" loading="lazy" alt="The simulated annealing browser lab: the chip with six cells and their net boxes, the curve of a run and the move log"></a>
+        <div>
+          <p>Run it and play with it, right in the browser:</p>
+          <ul>
+            <li>Press Apply SA preset: seed 42 with 60 moves gives 49.6, with 44 moves accepted and 16 rejected, the run of the lessons.</li>
+<li>Read the run move by move: a curve of the wirelength, and a log with the push, the chance, the dice and the verdict of every move.</li>
+<li>Drag the cells yourself, or pick one and use the arrows, and watch the six net boxes and the total change.</li>
+<li>Run any seed with any number of moves, and switch between the best placement and the final one.</li>
+          </ul>
+          <p>Nine challenges, from Intro to Stretch, check what you built or counted, not the button you pressed. The annealer always starts from the starter placement, and moving a cell after a run cancels that run's numbers.</p>
+          <div class="btns"><a class="btn primary" href="tools/sa-placement/index.html">Open the lab</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="implement">
+      <h2>Implement (Track A)</h2>
+      <p>Write <code>mulberry32</code>, <code>total_hpwl</code> and <code>sa_place</code> yourself, from the written rules, and check them against the goldens. The commands below run inside the <a href="https://github.com/yongfu-li/eda-learning">course repository</a>, from <code>courses/learn_placement/module02-07-sa-placement/</code>.</p>
+      <div class="files">
+        <a href="examples/tiny_place.json" download><code>tiny_place.json</code><small>The six cells, six nets and the starter placement (52)</small></a>
+<a href="examples/sa_place_check.py" download><code>sa_place_check.py</code><small>Golden self-check; --impl checks your code, --vs-node compares with JavaScript</small></a>
+<a href="examples/sa_node.mjs" download><code>sa_node.mjs</code><small>The same annealer in JavaScript (used by --vs-node)</small></a>
+<a href="examples/trace_seed42_60.json" download><code>trace_seed42_60.json</code><small>Seed 42, 60 moves, every move: the run of the lessons</small></a>
+<a href="examples/trace_seed199_60.json" download><code>trace_seed199_60.json</code><small>Seed 199: ends worse than the start</small></a>
+<a href="examples/trace_seed162_60.json" download><code>trace_seed162_60.json</code><small>Seed 162: a good run spoiled by its last move</small></a>
+<a href="examples/trace_seed42_300.json" download><code>trace_seed42_300.json</code><small>Seed 42, 300 moves: 2.6 and a pile of cells</small></a>
+<a href="examples/seeds_1_200.json" download><code>seeds_1_200.json</code><small>Seeds 1 to 200: best, final, accepted, rejected</small></a>
+      </div>
+      <div class="card md">
+        <h1>Examples — simulated annealing placement</h1>
+<p>Track A (implement). The instance is <code>examples/tiny_place.json</code> (six cells A to F, six nets), the answer key is
+<code>examples/sa_place_check.py</code>, and the runs are in <code>examples/trace_*.json</code> and <code>examples/seeds_1_200.json</code>.
+Every number below was printed by that checker (<code>python3 examples/sa_place_check.py --show</code>, <code>--json</code>).
+Run it from this module folder; it needs only the Python standard library (<code>--vs-node</code> also needs <code>node</code>).</p>
+<h2>Goal</h2>
+<p>Move cells one small jog at a time and keep the jog when the wires get shorter, <strong>or, sometimes, when they get longer</strong>.
+That second part is the whole idea of simulated annealing: a method that only walks downhill gets stuck, a method that
+sometimes walks uphill (less and less often as the <strong>temperature</strong> T falls) can get out. The cost is <strong>HPWL</strong>, and
+the answer is the <strong>best</strong> placement seen, not the last one.</p>
+<h2>Definitions</h2>
+<ul>
+<li><strong>Cell</strong>: a point <code>(x, y)</code> with a name. Six cells, A to F, always listed <strong>in this order</strong>.</li>
+<li><strong>Net</strong>: the list of cells a wire joins. Nets: A–B, C–D, A–C, B–D, A–B–C–D (4 pins), E–F.</li>
+<li><strong>HPWL</strong> of a net = (largest x − smallest x) + (largest y − smallest y) of its cells. <strong>Cost = the sum over the six nets,
+  every net counted once with weight 1.</strong> The weights in <code>tiny_place.json</code> (net 4 counts 5) are for the timing lab and are
+  <strong>not</strong> used here. Starter placement: A (0,0) B (8,0) C (0,8) D (8,8) E (4,4) F (0,4) gives <strong>52</strong>.</li>
+<li><strong>Move</strong>: pick one cell, one axis and a direction, jog it by 0.5 to 1.5 (not an integer), clamp it inside the <strong>walls</strong>
+  −1…9. Δ (written <code>dHpwl</code> in the files) = HPWL after − HPWL before.</li>
+<li><strong>Temperature T</strong>: starts at 3 and is multiplied by 0.94 <strong>after every move</strong>, accepted or not. After 60 moves it is 0.0732.</li>
+<li><strong>Accepted / rejected</strong>: a move that stays / a move that is undone. <strong>Accepted is not progress</strong>: of the 44 moves accepted
+  on seed 42, 11 shortened the wires, 9 lengthened them and 24 changed nothing (<strong>free moves</strong>, Δ = 0: the cell moved, no net
+  box changed).</li>
+<li><strong>Best / final</strong>: the lowest HPWL seen at any time (and its positions) / the HPWL of the last placement. The function
+  returns the best.</li>
+<li><strong>Seed</strong>: an integer that fixes the whole run. One seed is one story.</li>
+</ul>
+<h2>API (what <code>--impl</code> looks for)</h2>
+<p><code>positions</code> is <code>{cell: {"x": .., "y": ..}}</code>, <code>cells</code> a list of names in order, <code>nets</code> a list of lists of names.</p>
+<pre><code class="language-python">def mulberry32(seed):                      # -&gt; rand(): the next float in [0, 1)
+def total_hpwl(nets, positions):           # -&gt; float
+def sa_place(positions, cells, nets, *, moves=60, t0=3.0, cool=0.94, step=1.0, seed=42):
+    # -&gt; {&quot;positions&quot;: BEST positions, &quot;hpwl&quot;: BEST hpwl, &quot;accepted&quot;: int, &quot;rejected&quot;: int, &quot;final_hpwl&quot;: float}
+</code></pre>
+<p>Same signatures as <code>common/solvers.py</code>, so you can compare your function with the course's. Functions you have not written
+yet are reported as SKIP. Never change the <code>positions</code>, <code>cells</code> or <code>nets</code> you are given.</p>
+<h2>The rules (written exactly; the course code never wrote them down)</h2>
+<ul>
+<li><strong>Random numbers</strong>: <code>mulberry32(seed)</code>, the short generator of <code>placement-core.js</code>, <strong>with no warm-up draw</strong>: the first
+  call returns the first number. Seed 42 gives 0.6011, 0.4483, 0.8525, 0.6697, 0.1748. Avoid seeds 0 and 1 in your own tests:
+  the second number of seed 1 is 0.0027, so the first axis is always x.</li>
+<li><strong>One move uses four numbers, in this order</strong>: <code>r1</code> picks the cell <code>cells[floor(r1 * 6)]</code> (uniform, by list order);
+  <code>r2 &lt; 0.5</code> means axis x, else y; <code>r3 &lt; 0.5</code> means minus, else plus; <code>r4</code> gives the size <code>1.0 * (0.5 + r4)</code>.
+  The new coordinate is clamped to −1…9 (both coordinates of that cell).</li>
+<li><strong>Test</strong>: if Δ ≤ 0 the move is accepted <strong>and no random number is drawn</strong>. Otherwise draw <code>u</code> (the fifth number) and accept
+  when <code>u &lt; e^(−Δ / T)</code>.</li>
+<li><strong>Bookkeeping</strong>: if accepted, <code>cur = HPWL after</code>; if <code>cur &lt; best</code> <strong>strictly</strong>, best and best positions are updated.
+  Then <code>T = T * 0.94</code>, always.</li>
+<li><strong>Result</strong>: best positions, best HPWL, accepted, rejected (and the final HPWL).</li>
+<li><strong>Count of numbers drawn</strong> on seed 42: 4 × 60 + 25 (one per worsening proposal) = <strong>265</strong>.</li>
+<li><strong>Cell order is part of the spec</strong>: the same seed with the cells listed F…A is a different run (40.7859).</li>
+<li><strong>Every cell moves, the pads too.</strong> <code>tiny_place.json</code> calls A and D "fixed pads", but this annealer never freezes them
+  (freezing pads is the rule of the analytical labs). On seed 42, 20 of the 60 proposals were on A or D and 17 were accepted.</li>
+</ul>
+<p>Pseudocode (this replaces the old <code>ΔHPWL&lt;0</code> line of the lab: with <code>&lt;</code> the same code gives 35.39, not 49.58):</p>
+<pre><code class="language-text">INPUT: start positions, cells in order, nets, seed, moves=60, T=3, cool=0.94
+cur = HPWL(start); best = cur; best_pos = start
+for move in 1..moves:
+  cell = cells[floor(r1 * n)];  axis = x if r2 &lt; 0.5 else y;  sign = -1 if r3 &lt; 0.5 else +1
+  new = old + sign * (0.5 + r4);  clamp the cell's x and y to [-1, 9]
+  delta = HPWL(after) - cur
+  if delta &lt;= 0:  accept                       # not worse: no dice
+  else:           u = next number;  accept if u &lt; exp(-delta / T)
+  if accepted:    cur = HPWL(after);  if cur &lt; best: best = cur; best_pos = positions
+  T = T * cool
+OUTPUT: best_pos, best, accepted, rejected
+GOLDEN seed=42, 60 moves -&gt; best 49.5755 at move 45, final 49.5755, accepted 44, rejected 16
+</code></pre>
+<h2>The probability of accepting a worse move, e^(−Δ / T)</h2>
+<table>
+<thead>
+<tr>
+<th>Δ \ T</th>
+<th>3.0000 (start)</th>
+<th>1.6158 (move 10)</th>
+<th>0.4688 (move 30)</th>
+<th>0.0732 (end)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>0.8465</td>
+<td>0.7339</td>
+<td>0.3442</td>
+<td>0.0011</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td>0.7165</td>
+<td>0.5386</td>
+<td>0.1185</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>3.0</td>
+<td>0.3679</td>
+<td>0.1562</td>
+<td>0.0017</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>6.0</td>
+<td>0.1353</td>
+<td>0.0244</td>
+<td>0.0000</td>
+<td>0.0000</td>
+</tr>
+</tbody>
+</table>
+<p>Same wires, same Δ: brave at the start, careful at the end. The first move of seed 42 is the Δ = 3, T = 3 cell.</p>
+<h2>Golden 1 — seed 42, 60 moves (the browser lab's run)</h2>
+<p>Move 1 by hand: <code>r1 = 0.6011</code> → cell D; <code>r2 = 0.4483</code> → axis x; <code>r3 = 0.8525</code> → plus; <code>r4 = 0.6697</code> → size 1.1697.
+D goes from x = 8 to 9.1697, the wall stops it at <strong>x = 9</strong>. The nets C–D, B–D and A–B–C–D each get 1 wider: Δ = <strong>+3</strong>
+(HPWL 52 → 55). p = e^(−3/3) = <strong>0.3679</strong>; the draw <code>u = 0.1748</code> is below it: <strong>accepted</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start HPWL</td>
+<td>52</td>
+<td>A, B, C, D in the four corners</td>
+</tr>
+<tr>
+<td>best HPWL</td>
+<td><strong>49.5755</strong> (the lab shows 49.6)</td>
+<td>the exact value; the lab rounds to one decimal</td>
+</tr>
+<tr>
+<td>best reached at</td>
+<td>move <strong>45</strong> (B y −0.794 → 0.467, Δ = −3.782)</td>
+<td>and never beaten after it</td>
+</tr>
+<tr>
+<td>final HPWL</td>
+<td>49.5755 = best</td>
+<td>on this seed only; see golden 2</td>
+</tr>
+<tr>
+<td>accepted / rejected</td>
+<td><strong>44 / 16</strong></td>
+<td>exact integers, not "about"</td>
+</tr>
+<tr>
+<td>of the 44 accepted</td>
+<td><strong>11 better, 9 worse, 24 free</strong></td>
+<td>accepted is not progress</td>
+</tr>
+<tr>
+<td>of the 60 proposals</td>
+<td>11 better, 25 worse, 24 free</td>
+<td>the 16 rejected are all among the 25 worse</td>
+</tr>
+<tr>
+<td>moves stopped by a wall</td>
+<td><strong>10</strong> (5 accepted: moves 1, 2, 4, 13, 50; 5 rejected: 20, 22, 27, 37, 60)</td>
+<td>the clamp is part of the spec: without it 42.4127</td>
+</tr>
+<tr>
+<td>highest HPWL during the run</td>
+<td>58.5768 (move 13)</td>
+<td>the run first climbs from 52, then falls</td>
+</tr>
+<tr>
+<td>(HPWL, T) at moves 0, 10…60</td>
+<td>(52, 3) (57.35, 1.616) (56.59, 0.870) (56.87, 0.469) (53.36, 0.252) (49.58, 0.136) (49.58, 0.073)</td>
+<td><code>saPlace</code> <code>history</code> (the lab draws every move)</td>
+</tr>
+<tr>
+<td>numbers drawn</td>
+<td><strong>265</strong> = 4 × 60 + 25</td>
+<td>a port that draws on Δ = 0 drifts</td>
+</tr>
+<tr>
+<td>proposals on the pads A, D</td>
+<td>20, of which 17 accepted</td>
+<td>A ends at (0, 1.99), D at (5.76, 9)</td>
+</tr>
+<tr>
+<td>best positions</td>
+<td>A (0, 1.9895) B (7.2157, 0.4666) C (2.7113, 6.0676) D (5.7591, 9) E (4, 4.9394) F (1.9499, 5.2174)</td>
+<td>what the function returns</td>
+</tr>
+</tbody>
+</table>
+<p>A few moves worth reading in <code>--show</code>: move 15 (A goes to x = −0.98, Δ = 2.945, p = 0.097, u = 0.612: <strong>rejected</strong>);
+move 17 (Δ = 0.082, p = 0.929: a harmless worsening <strong>accepted</strong>); move 43 (Δ = 4.453, T = 0.223, p = 0.0000: <strong>rejected</strong>).</p>
+<h2>Golden 2 — best is not final (seeds 199 and 162)</h2>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Best</th>
+<th>Reached at</th>
+<th>Final</th>
+<th>Accepted / rejected</th>
+<th>Peak HPWL</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>42</td>
+<td>49.5755</td>
+<td>move 45</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>58.58</td>
+<td>the two happen to be equal</td>
+</tr>
+<tr>
+<td><strong>199</strong></td>
+<td><strong>52.0000</strong> = the start</td>
+<td><strong>never</strong></td>
+<td><strong>53.8714</strong></td>
+<td>37 / 23</td>
+<td>60.46</td>
+<td>37 moves accepted, none beat the start; the final is <strong>worse than the start</strong>; the function must return the start</td>
+</tr>
+<tr>
+<td><strong>162</strong></td>
+<td>27.7525</td>
+<td>move 59</td>
+<td>27.8871</td>
+<td>41 / 19</td>
+<td>55.19</td>
+<td>a good run whose last move (E y +0.82, Δ = +0.135, p = 0.178, u = 0.091) spoils it</td>
+</tr>
+</tbody>
+</table>
+<p>On seeds 1…200 the final HPWL is worse than the best one on <strong>9</strong> seeds: 6, 13, 54, 102, 118, 149, 156, 162 and 199.</p>
+<h2>Golden 3 — one seed is one story (seeds 1…200, 60 moves each)</h2>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>best HPWL, lowest</td>
+<td><strong>13.7292</strong> (seed 134)</td>
+</tr>
+<tr>
+<td>best HPWL, highest</td>
+<td><strong>52.0000</strong> (seed 199)</td>
+</tr>
+<tr>
+<td>median of the 200 best values</td>
+<td><strong>36.0428</strong></td>
+</tr>
+<tr>
+<td>five best seeds</td>
+<td>134: 13.7292, 114: 15.0626, 75: 15.5504, 84: 20.1749, 60: 20.6920</td>
+</tr>
+<tr>
+<td>seeds that beat seed 42</td>
+<td><strong>197</strong> of 200 (only seeds 62: 49.9431 and 199: 52.0000 are worse)</td>
+</tr>
+<tr>
+<td>seeds that never beat the start</td>
+<td>1 (seed 199)</td>
+</tr>
+</tbody>
+</table>
+<p>Seed 42 is the <strong>third-worst</strong> of the 200 runs. It is the reproducible story used everywhere in this lab; to judge a
+random method, look at many runs. The per-seed table is <code>examples/seeds_1_200.json</code>.</p>
+<h2>Golden 4 — what the cost does not know (300 and 1000 moves)</h2>
+<table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Best HPWL</th>
+<th>Accepted / rejected</th>
+<th>2×2 bin overflow</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>starter</td>
+<td>52</td>
+<td>–</td>
+<td>2</td>
+</tr>
+<tr>
+<td>"golden compact" placement of <code>tiny_place.json</code></td>
+<td>14</td>
+<td>–</td>
+<td>2</td>
+</tr>
+<tr>
+<td>SA seed 42, 60 moves</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>2</td>
+</tr>
+<tr>
+<td>SA seed 42, <strong>300 moves</strong> (best at move 278)</td>
+<td><strong>2.6119</strong></td>
+<td>104 / 196</td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>SA seed 42, 1000 moves</td>
+<td>2.3814</td>
+<td>107 / 893</td>
+<td>–</td>
+</tr>
+<tr>
+<td>all six cells on one point (4, 4)</td>
+<td><strong>0</strong></td>
+<td>–</td>
+<td>5</td>
+</tr>
+<tr>
+<td>the <code>overlap</code> placement of <code>tiny_place.json</code></td>
+<td>24</td>
+<td>–</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>HPWL has no overlap rule: the 300-move run ends <strong>far below the "golden 14"</strong>, so 14 is no floor, and with A, B, C, D within
+0.5 of each other its bins are more crowded than the start. HPWL alone loves piling cells up; the density lab fixes that.
+(Bins: 2×2 over 0…8, capacity 1 cell per bin; overflow = the cells above capacity.)</p>
+<h2>Pitfalls — a port that breaks one written rule (seed 42, 60 moves)</h2>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Best</th>
+<th>Accepted / rejected</th>
+<th>Numbers drawn</th>
+<th>Detected by the golden?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>the rules above</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td>–</td>
+</tr>
+<tr>
+<td>accept only when Δ <strong>&lt; 0</strong> (the old pseudocode), draw otherwise</td>
+<td><strong>35.3928</strong></td>
+<td>46 / 14</td>
+<td>282</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>draw <code>u</code> on every move, even when Δ ≤ 0</td>
+<td>35.7737</td>
+<td>41 / 19</td>
+<td>300</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>no walls at −1…9</td>
+<td>42.4127</td>
+<td>39 / 21</td>
+<td>266</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>integer step 1 instead of 0.5…1.5</td>
+<td>39.0000</td>
+<td>34 / 26</td>
+<td>208</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>cool T <strong>before</strong> the test</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td><strong>no</strong>: same run here, so the order of cooling is not checked</td>
+</tr>
+<tr>
+<td>cells listed F…A</td>
+<td>40.7859</td>
+<td>39 / 21</td>
+<td>–</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>nets reversed, or the positions dict in another key order</td>
+<td>49.5755</td>
+<td>44 / 16</td>
+<td>265</td>
+<td>same run: allowed</td>
+</tr>
+</tbody>
+</table>
+<p>These all look faithful and are all different programs. That is why the rules are written down.</p>
+<h2>Exploration (NOT golden): <code>--freeze A,D</code></h2>
+<p><code>python3 examples/sa_place_check.py --show --freeze A,D</code> keeps the pads where they are. The moving cell is picked <strong>among
+the non-frozen cells only, in order A…F</strong>: <code>cell = free[floor(r1 * n_free)]</code> with <code>free = [B, C, E, F]</code>. Same seed, 60 moves:
+best <strong>51.0964</strong> (move 59), 45 accepted / 15 rejected. It is an experiment, not a number the lab or the quiz relies on.</p>
+<h2>Run files for the animated lessons (<code>--json</code>)</h2>
+<p><code>python3 examples/sa_place_check.py --json --seed 42 --moves 60</code> prints one run; <code>--write-examples</code> rewrites the files
+<code>examples/trace_seed42_60.json</code>, <code>trace_seed199_60.json</code>, <code>trace_seed162_60.json</code>, <code>trace_seed42_300.json</code> and
+<code>seeds_1_200.json</code>. <code>--vs-node</code> regenerates them with the browser lab's JavaScript and compares.</p>
+<p>Header: <code>seed, moves, t0, cool, step, frozen, cells (in order), nets, walls {min -1, max 9}, hpwl_start, net_hpwl_start (one
+value per net, in the order of nets), start, best, best_move (null when the run never beat the start), final,
+best_positions, final_positions, accepted, rejected, draws, accepted_by_kind, proposed_by_kind, clamped, peak, history</code>.</p>
+<p><code>moves_list</code> has one object per move: <code>move</code> (1-based), <code>cell</code>, <code>axis</code>, <code>from</code> and <code>to</code> (the cell's position before and after
+the clamp; for a rejected move <code>to</code> is the position that was tried), <code>proposed</code> (the coordinate before the clamp), <code>clamped</code>,
+<code>delta</code> (the signed jog), <code>dHpwl</code> (the change of cost, Δ), <code>T</code> (before cooling), <code>p</code> (accept probability, 1 when Δ ≤ 0), <code>u</code>
+(<strong>null when no number was drawn</strong>), <code>accepted</code>, <code>newBest</code>, <code>hpwl</code> (current), <code>best</code>, and <code>kind</code> (<code>better</code>, <code>worse</code> or <code>free</code>,
+from the sign of Δ). Floats are full precision; <code>p</code> agrees between Python and JavaScript within 1e-12 (<code>exp</code> differs in the last bit).</p>
+<h2>Try these</h2>
+<pre><code class="language-bash">python3 examples/sa_place_check.py                          # all PASS
+python3 examples/sa_place_check.py --show                   # rules, every move of seed 42, every table above
+python3 examples/sa_place_check.py --show --seed 199        # the run that ends worse than the start
+python3 examples/sa_place_check.py --show --seed 162        # the good run spoiled by its last move
+python3 examples/sa_place_check.py --show --seed 42 --moves 300
+python3 examples/sa_place_check.py --impl my_sa.py          # YOUR mulberry32, total_hpwl, sa_place
+python3 examples/sa_place_check.py --impl examples/wrong/strict_less.py   # FAIL on purpose (35.393)
+python3 examples/sa_place_check.py --vs-node                # JavaScript and Python agree, bit for bit
+</code></pre>
+<p><code>examples/wrong/</code> holds three programs that each break one rule (<code>strict_less.py</code>, <code>draw_every_move.py</code>, <code>no_clamp.py</code>).
+They must FAIL on the seed-42 line; read the <code>got</code> value and find which rule it breaks.</p>
+<h2>Starter prompts (ask why)</h2>
+<ol>
+<li>Implement <code>mulberry32</code>, <code>total_hpwl</code> and <code>sa_place</code> from the rules above, and run <code>--impl</code>. Which line fails first if you
+   write <code>delta &lt; 0</code>, and what number do you get instead of 49.5755?</li>
+<li>On seed 42 the first move is accepted with probability 0.3679. Compute it by hand from Δ = 3 and T = 3.</li>
+<li>Of 44 accepted moves only 11 made the wires shorter. Name the other two groups and say in one sentence why the 24 "free"
+   moves do not change the HPWL.</li>
+<li>Seed 199 accepts 37 moves and still returns the starter. Which line of your code makes that happen?</li>
+<li>Seed 134 reaches 13.73, below the "golden" 14, and 300 moves reach 2.61. Why is a placement with HPWL 2.61 not a good one?</li>
+<li>Run <code>--show --freeze A,D</code>. The pads stay put and the result is worse than the unfrozen run. Is that a rule of this
+   annealer or an experiment?</li>
+</ol>
+<h2>Expected artifacts</h2>
+<ul>
+<li>A file with <code>mulberry32</code>, <code>total_hpwl</code> and <code>sa_place</code> and a clean <code>--impl</code> run (no FAIL)</li>
+<li>The seed-42 line: best, accepted, rejected, and the move where the best was reached</li>
+<li>One sentence for each of the questions 2 to 5 above</li>
+</ul>
+<h2>Stretch</h2>
+<p>Count the random numbers your <code>sa_place</code> draws on seed 42 (it must be 265). Then change the test to <code>delta &lt; 0</code> and count
+again: the number of draws and the best HPWL both move, which is why the rule is written as <code>delta &lt;= 0</code>.</p>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <h2>Quiz</h2>
+      <p>8 quick questions on this lab. Pick an answer for each, then check.</p>
+      <div class="card quiz" id="quiz-root"
+           data-check="Check my answers" data-reset="Reset" data-pass="passed"
+           data-fail="try again" data-true="True" data-false="False"></div>
+      <script type="application/json" id="quiz-data">{"id": "module02-07-sa-placement", "title": "Simulated annealing placement check", "passing_score": 0.67, "items": [{"id": "q1", "type": "multiple_choice", "prompt": "Seed 42, move 1: cell D jogs right and the wall stops it at x = 9. The wires get 3 longer (HPWL 52 → 55) and T is 3. What is the chance that the move is accepted?", "choices": ["0 (a longer wire is always rejected)", "0.37", "0.63", "1 (the first move is always accepted)"], "answer": 1, "explain": "p = e^(−Δ/T) = e^(−3/3) = 0.3679. The run draws u = 0.1748, which is below 0.3679, so the move is accepted. Only a move that is not worse (Δ ≤ 0) is accepted for sure."}, {"id": "q2", "type": "true_false", "prompt": "A move with Δ = 0 (no net box changes) must pass the random test, so it uses a random number like a worsening move.", "answer": false, "explain": "Δ ≤ 0 is accepted without drawing anything. Seed 42 draws 4 × 60 + 25 = 265 numbers: four per move plus one for each of the 25 worsening proposals. A port that accepts only Δ < 0 draws on every Δ = 0 move and gets 35.393 instead of 49.576."}, {"id": "q3", "type": "multiple_choice", "prompt": "Seed 42 accepts 44 of its 60 moves. How many of those 44 made the HPWL smaller?", "choices": ["44", "24", "11", "9"], "answer": 2, "explain": "11 shortened the wires, 9 lengthened them (accepted by the dice) and 24 changed nothing (free moves, Δ = 0): 11 + 9 + 24 = 44. The 16 rejected moves were all among the 25 worsening proposals. Accepted is not progress."}, {"id": "q4", "type": "multiple_choice", "prompt": "A move that makes the wires 0.5 longer: what is the chance of accepting it at the start (T = 3) and at the end of the 60 moves (T = 0.0732)?", "choices": ["0.85 at the start, 0.001 at the end", "0.85 at the start, 0.85 at the end", "0.37 at the start, 0.001 at the end", "1 at the start, 0 at the end"], "answer": 0, "explain": "e^(−0.5/3) = 0.8465 and e^(−0.5/0.0732) = 0.0011. T falls by a factor 0.94 after every move (3 × 0.94^60 = 0.0732), so the same worsening is almost always taken at first and almost never at the end."}, {"id": "q5", "type": "multiple_choice", "prompt": "Seed 199 accepts 37 moves, none of which ever gets below the start (52), and the last placement has HPWL 53.871. What does sa_place return?", "choices": ["The last placement, HPWL 53.871", "The starting placement, HPWL 52.000", "The placement after move 37", "An error: the run found nothing"], "answer": 1, "explain": "The function returns the best placement seen, and the best is the start (a new best needs cur < best strictly). The final placement is 1.871 worse than the start. Seed 162 is the mild case: best 27.753 at move 59, final 27.887."}, {"id": "q6", "type": "true_false", "prompt": "Seed 42 gives 49.6, so on this instance a 60-move annealing run is expected to end near 49.6.", "answer": false, "explain": "Seed 42 is the third-worst of seeds 1 to 200. 197 of the 200 seeds do better; the best values go from 13.729 (seed 134) to 52.000 (seed 199) with a median of 36.043. One seed is one story: judge a random method by many runs."}, {"id": "q7", "type": "multiple_choice", "prompt": "300 moves on seed 42 reach HPWL 2.612, far below the \"golden\" placement of 14. Why is that not a better placement?", "choices": ["The annealer is broken: HPWL cannot go below 14", "HPWL has no overlap rule, so the cells pile up (A, B, C, D end within 0.5 of each other; bin overflow 4 against 2 at the start)", "300 moves are too few for the result to count", "The 2.612 comes from the final placement, not the best one"], "answer": 1, "explain": "Nothing in the cost keeps cells apart: six cells on one point would give HPWL 0 (bin overflow 5). So 14 is not a floor and a low HPWL alone is not a good placement. A density term, the next module, is the missing piece."}, {"id": "q8", "type": "true_false", "prompt": "tiny_place.json lists A and D as fixed pads, so in this lab's annealer cells A and D never move.", "answer": false, "explain": "This annealer moves every cell. On seed 42, 20 of the 60 proposals are on A or D and 17 are accepted: A ends at (0, 1.99) and D at (5.76, 9). Freezing them (--freeze A,D, an experiment) gives 51.096 instead of 49.576."}]}</script>
+    </section>
+
+    <section id="transcript">
+      <details class="card transcript">
+        <summary>Full narration transcript</summary>
+        <h3>Simulated annealing placement</h3><p>Why would anyone keep a move that makes things worse? A small chip will show you why. Six cells sit on it, joined by wires. Our job is to move the cells so the wires get shorter.</p>
+<h3>Cells and nets</h3><p>Each cell is a small block of logic. A placement says where each cell sits on the chip. Our cells are named A to F. Wires join the cells in groups, called nets. This chip has six nets.</p>
+<h3>Measure a net with a box</h3><p>Draw the smallest box around the cells of one net. The box&#x27;s width plus its height measures that net. It is close to the real length of the wires. And it is quick to compute. This measure is called the half-perimeter wirelength.</p>
+<h3>Fifty-two to start</h3><p>At the start, four nets measure eight each. The net joining A, B, C and D measures sixteen. The net of E and F measures four. Add them up: the wirelength is fifty-two.</p>
+<h3>Walking downhill in fog</h3><p>A simple plan: move one cell a little, and keep the move only if the wires get shorter. That is like walking downhill in thick fog. You have no map: you only feel the slope under your feet. You stop in the first dip you find. A deeper valley may be just behind the next hill.</p>
+<h3>Sometimes, go uphill</h3><p>Simulated annealing is braver: it sometimes keeps a move that makes things worse. Its name comes from metal work. A smith cools hot metal slowly, so its atoms settle into a strong order. Pause and guess: the first move makes the wires three longer. Keep it, or not?</p>
+<h3>One move, up close</h3><p>Sometimes, and a dice roll decides. Let&#x27;s watch that first move, step by step.</p>
+<h3>Pick, push, measure</h3><p>The annealer picks a cell at random: D. It picks a direction at random: to the right. It picks a small step, also at random. D would leave the chip, but the wall stops it. Now measure: the wires got three longer.</p>
+<h3>Worse? Roll the dice</h3><p>The move is worse, so the annealer rolls a dice. The chance to keep this move is thirty-seven percent. This dice gives a number smaller than one. The dice shows zero point one seven. That is below zero point three seven. So the move is accepted, and D stays against the wall.</p>
+<h3>A free move</h3><p>In the second move, D is pushed against the wall again. It cannot go further, so no wire changes. A move that is not worse is always accepted, with no dice at all. We call it a free move.</p>
+<h3>What sets the chance</h3><p>The chance depends on two things. The first is how much worse the move is. At the start, one longer gets seventy-two percent. Three longer gets thirty-seven percent. Six longer gets only fourteen percent. The second thing is a number called the temperature. It starts at three.</p>
+<h3>Same move, colder</h3><p>The temperature falls during the run. Later in the run, it is down to one point four. D is pushed into a wall again, and the wires get three longer. Pause and guess: is the chance bigger, smaller, or the same as before?</p>
+<h3>Smaller: twelve percent</h3><p>Smaller: only twelve percent. The dice shows zero point zero nine, so the move still passes. Lucky! The wires reach fifty-eight point six, the longest of this whole run.</p>
+<h3>From hot to cold</h3><p>The temperature drops a little after every move. It starts at three, and ends near zero point zero seven. Like the smith&#x27;s metal, the run cools slowly. Hot means brave: many worse moves pass. Cold means picky: worse moves almost never pass.</p>
+<h3>Sixty moves</h3><p>Now watch the rest of the sixty moves. While it is warm, the wires stay long. As it cools, they shrink. At move forty-five, they reach forty-nine point six.</p>
+<h3>The last move</h3><p>The very last move pushes A into a wall: three longer again. It is cold now, below zero point one. The chance is zero, so the move is rejected.</p>
+<h3>Accepted is not progress</h3><p>In total, forty-four moves were accepted, and sixteen were rejected. But only eleven accepted moves made the wires shorter. Nine made them longer. Twenty-four were free moves. Accepted does not mean better.</p>
+<h3>Last or best?</h3><p>Pause and guess: after sixty moves, are the last wires also the shortest of the run?</p>
+<h3>Yes, this time</h3><p>This time, yes. After move forty-five, nothing beats forty-nine point six. Nothing makes it worse, either. But that is luck. Every random choice comes from a seed: a number that fixes all the dice rolls. Our run uses seed forty-two.</p>
+<h3>Seed one hundred ninety-nine</h3><p>Seed one hundred ninety-nine tells another story. Its wires climb above sixty early on. They never get back below the start of fifty-two. The run ends at fifty-three point nine, worse than where it began.</p>
+<h3>Seed one hundred sixty-two</h3><p>Seed one hundred sixty-two does much better. At move fifty-nine, it reaches twenty-seven point eight. Then the last move makes the wires a little longer. The dice lets it pass. The run ends at twenty-seven point nine.</p>
+<h3>Keep the best</h3><p>So the annealer keeps a copy of the best placement it has seen. At the end, it returns that copy, not the last placement. Keeping that copy costs almost nothing. Seed one hundred sixty-two returns twenty-seven point eight. Seed one hundred ninety-nine returns the start.</p>
+<h3>Is forty-two typical?</h3><p>Our seed, forty-two, returned forty-nine point six. Pause and guess: is that a typical result?</p>
+<h3>One seed, one story</h3><p>Not at all: it is one of the worst. We ran two hundred seeds, with sixty moves each. The best wirelength goes from thirteen point seven to fifty-two. The middle result is about thirty-six. One hundred ninety-seven seeds beat seed forty-two. So judge a random method by many runs, not by one.</p>
+<h3>Three hundred moves</h3><p>Now give seed forty-two three hundred moves instead of sixty. The first sixty moves are the same, because the seed is the same. Then the wires keep shrinking, down to two point six.</p>
+<h3>What the cost does not know</h3><p>Look at the chip: the cells sit on top of each other. Real cells cannot overlap. But our cost only measures wires. Nothing in it says that cells need their own space. To the cost, a pile of cells looks perfect.</p>
+<h3>Every cell moves</h3><p>On a real chip, A and D would be pads: fixed doors to the outside world. In this lab, every cell moves, even A and D. Freezing the pads is a rule for another lab.</p>
+<h3>Remember</h3><p>A worse move passes only when the dice allows it. Cold makes the dice strict. Accepted does not mean better. Keep the best placement, not the last one. One seed is one story. And the cost only knows what it measures.</p>
+<h3>Your turn</h3><p>In the browser lab, run seed forty-two with sixty moves. You should get forty-nine point six, with forty-four moves accepted and sixteen rejected. The Python checker rolls the same dice, so it gives the same numbers. Then drag the cells yourself, and try to beat the annealer. Pause and guess: how could the cost stop cells from piling up?</p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Lab 07 of the Placement for EDA course, from the <a href="https://github.com/yongfu-li/eda-learning">EDA Algorithms Platform</a> (CC BY 4.0). Review build, not yet merged into the course repository.</div>
+  </footer>
+  <script>
+    // Keep the reader's place (#section) when switching language.
+    document.querySelectorAll("a.lang-switch").forEach((a) =>
+      a.addEventListener("click", () => { a.href = a.getAttribute("href").split("#")[0] + location.hash; })
+    );
+  </script>
+  <script src="quiz.js"></script>
+</body>
+</html>

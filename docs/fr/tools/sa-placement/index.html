@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Placement par recuit simulé — EDA Algorithms Platform</title>
+  <link rel="stylesheet" href="../../assets/site.css">
+  <link rel="stylesheet" href="../../assets/tools-shared.css">
+  <link rel="stylesheet" href="../../assets/clustering-lab.css">
+  <style>
+    /* Lab 07 workspace extras (kept local to this tool) */
+    #lab-root .tool-layout.split-wide { grid-template-columns: minmax(0, 1fr); }
+    .sa-views { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+    @media (max-width: 760px) { .sa-views { grid-template-columns: minmax(0, 1fr); } }
+    .sa-view { margin: 0; min-width: 0; }
+    .sa-view figcaption, .sa-h3 { font-size: 0.9rem; font-weight: 650; margin: 0.6rem 0 0.3rem; }
+    .sa-svg { display: block; width: 100%; height: auto; background: #ffffff; border: 1px solid var(--line, #ddd); border-radius: 6px; touch-action: none; user-select: none; }
+    .sa-svg text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-anchor: middle; dominant-baseline: middle; }
+    #sa-floor .sa-cell { cursor: grab; }
+    .sa-cell-label { font-size: 15px; font-weight: 700; fill: #ffffff; pointer-events: none; }
+    .sa-tick { font-size: 11px; fill: #64748b; }
+    .sa-stack { font-size: 12px; font-weight: 700; fill: #b91c1c; text-anchor: start !important; paint-order: stroke; stroke: #ffffff; stroke-width: 4px; }
+    .sa-total { font-weight: 750; color: #0f172a; }
+    .sa-note { font-size: 13px; fill: #64748b; }
+    .sa-legend { margin: 0.35rem 0 0; font-size: 0.8rem; line-height: 1.5; color: var(--muted, #555); }
+    .sa-key { display: inline-block; width: 1.6rem; height: 0; margin-right: 0.4rem; vertical-align: middle; }
+    .sa-key-cur { border-top: 2.5px solid #1d4ed8; }
+    .sa-key-best { border-top: 3px dashed #15803d; }
+    .sa-key-start { border-top: 2px dashed #64748b; }
+    .sa-log-wrap { max-height: 22rem; overflow: auto; border: 1px solid var(--line, #ddd); border-radius: 6px; }
+    .sa-table { border-collapse: collapse; width: 100%; font-size: 0.84rem; }
+    .sa-table th { position: sticky; top: 0; background: #f8fafc; text-align: left; font-weight: 650; padding: 0.25rem 0.35rem; border-bottom: 1px solid var(--line, #ddd); }
+    .sa-table td { padding: 0.18rem 0.35rem; white-space: nowrap; }
+    .sa-num { text-align: right; font-variant-numeric: tabular-nums; }
+    .sa-log-table tr.sa-better td:nth-child(4) { color: #15803d; font-weight: 650; }
+    .sa-log-table tr.sa-worse td:nth-child(4) { color: #b91c1c; font-weight: 650; }
+    .sa-log-table tr.sa-free td:nth-child(4) { color: #64748b; }
+    .sa-log-table tr.sa-rej td { color: #94a3b8; }
+    .sa-swatch { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; margin-right: 0.35rem; vertical-align: -0.1rem; }
+    .sa-swatch-net { border-radius: 2px; border: 2px dashed; background: transparent; }
+    .sa-right { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem; max-width: 46rem; }
+    .sa-row { margin: 0.3rem 0; align-items: center; flex-wrap: wrap; }
+    .sa-label { font-size: 0.85rem; font-weight: 600; }
+    .sa-input { width: 7rem; padding: 0.35rem 0.5rem; font: inherit; border: 1px solid var(--line, #ccc); border-radius: 6px; }
+    .sa-input.sa-small { width: 4.5rem; }
+    .sa-select { padding: 0.25rem 0.35rem; font: inherit; font-size: 0.85rem; border: 1px solid var(--line, #ccc); border-radius: 6px; background: #fff; }
+    .sa-muted { margin: 0.2rem 0; font-size: 0.85rem; color: var(--muted, #555); }
+    .sa-tally { margin: 0.3rem 0; font-weight: 650; }
+    .sa-msg { margin: 0.4rem 0; padding: 0.4rem 0.6rem; border-radius: 6px; background: rgba(180, 83, 9, 0.1); font-size: 0.88rem; }
+    .sa-why { margin: 0.4rem 0; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.88rem; }
+    .sa-why.no { background: rgba(185, 28, 28, 0.08); }
+    .sa-why.ok { background: rgba(21, 128, 61, 0.12); }
+    .sa-right .metrics-pre { margin: 0.2rem 0; white-space: pre-wrap; }
+    .lab-extra-actions .sa-input { width: 5rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <p class="brand"><a href="../../index.html">Placement pour l'EDA · Lab 07</a></p>
+      <nav class="site-nav" aria-label="Site">
+        <a href="../../index.html">Accueil du Lab 07</a>
+        <a href="../../index.html#lessons">Leçons animées</a>
+        <a href="../../../tools/sa-placement/index.html" hreflang="en" lang="en">English</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <div class="eyebrow">Outil interactif</div>
+    <section class="hero">
+      <h1>Placement par recuit simulé</h1>
+      <p class="lead">Déplacez six cellules à la main, ou laissez le recuit simulé les déplacer : les mouvements pires passent quand le dé dit oui, et l'exécution rend le meilleur placement qu'elle a vu.</p>
+    </section>
+    <div id="lab-root"></div>
+  </main>
+  <footer class="site-footer">Lab 07 · Placement par recuit simulé — fait partie du cours de placement de l'<a href="https://github.com/yongfu-li/eda-learning">EDA Algorithms Platform</a> (CC BY 4.0).</footer>
+  <script type="module" src="sa-placement.js"></script>
+</body>
+</html>

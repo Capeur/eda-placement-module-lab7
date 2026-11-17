@@ -1,0 +1,93 @@
+{
+  "id": "module02-07-sa-placement",
+  "title": "Quiz sur le placement par recuit simulé",
+  "passing_score": 0.67,
+  "items": [
+    {
+      "id": "q1",
+      "type": "multiple_choice",
+      "prompt": "Graine 42, mouvement 1 : la cellule D saute vers la droite et le mur l'arrête à x = 9. Les fils s'allongent de 3 (HPWL 52 → 55) et T vaut 3. Quelle est la chance que le mouvement soit accepté ?",
+      "choices": [
+        "0 (un fil plus long est toujours refusé)",
+        "0.37",
+        "0.63",
+        "1 (le premier mouvement est toujours accepté)"
+      ],
+      "answer": 1,
+      "explain": "p = e^(−Δ/T) = e^(−3/3) = 0.3679. L'exécution tire u = 0.1748, en dessous de 0.3679, donc le mouvement est accepté. Seul un mouvement qui n'est pas pire (Δ ≤ 0) est accepté à coup sûr."
+    },
+    {
+      "id": "q2",
+      "type": "true_false",
+      "prompt": "Un mouvement avec Δ = 0 (aucune boîte de réseau ne change) doit passer le test aléatoire, donc il utilise un nombre aléatoire comme un mouvement qui aggrave.",
+      "answer": false,
+      "explain": "Δ ≤ 0 est accepté sans rien tirer. La graine 42 tire 4 × 60 + 25 = 265 nombres : quatre par mouvement plus un pour chacune des 25 propositions qui aggravent. Un portage qui n'accepte que Δ < 0 tire à chaque mouvement avec Δ = 0 et obtient 35.393 au lieu de 49.576."
+    },
+    {
+      "id": "q3",
+      "type": "multiple_choice",
+      "prompt": "La graine 42 accepte 44 de ses 60 mouvements. Parmi ces 44, combien ont diminué le HPWL ?",
+      "choices": [
+        "44",
+        "24",
+        "11",
+        "9"
+      ],
+      "answer": 2,
+      "explain": "11 ont raccourci les fils, 9 les ont allongés (acceptés par le dé) et 24 n'ont rien changé (mouvements neutres, Δ = 0) : 11 + 9 + 24 = 44. Les 16 mouvements refusés étaient tous parmi les 25 propositions qui aggravent. Accepté n'est pas un progrès."
+    },
+    {
+      "id": "q4",
+      "type": "multiple_choice",
+      "prompt": "Un mouvement qui allonge les fils de 0.5 : quelle est la chance de l'accepter au début (T = 3) et à la fin des 60 mouvements (T = 0.0732) ?",
+      "choices": [
+        "0.85 au début, 0.001 à la fin",
+        "0.85 au début, 0.85 à la fin",
+        "0.37 au début, 0.001 à la fin",
+        "1 au début, 0 à la fin"
+      ],
+      "answer": 0,
+      "explain": "e^(−0.5/3) = 0.8465 et e^(−0.5/0.0732) = 0.0011. T est multipliée par 0.94 après chaque mouvement (3 × 0.94^60 = 0.0732), donc la même aggravation est presque toujours prise au début et presque jamais à la fin."
+    },
+    {
+      "id": "q5",
+      "type": "multiple_choice",
+      "prompt": "La graine 199 accepte 37 mouvements, dont aucun ne passe jamais sous le départ (52), et le dernier placement a un HPWL de 53.871. Que rend sa_place ?",
+      "choices": [
+        "Le dernier placement, HPWL 53.871",
+        "Le placement de départ, HPWL 52.000",
+        "Le placement après le mouvement 37",
+        "Une erreur : l'exécution n'a rien trouvé"
+      ],
+      "answer": 1,
+      "explain": "La fonction rend le meilleur placement vu, et le meilleur est le départ (un nouveau meilleur demande cur < best strictement). Le placement final est 1.871 plus mauvais que le départ. La graine 162 est le cas doux : meilleur 27.753 au mouvement 59, dernier 27.887."
+    },
+    {
+      "id": "q6",
+      "type": "true_false",
+      "prompt": "La graine 42 donne 49.6, donc sur cette instance une exécution de recuit de 60 mouvements doit normalement finir près de 49.6.",
+      "answer": false,
+      "explain": "La graine 42 est la troisième plus mauvaise des graines 1 à 200. 197 des 200 graines font mieux ; les meilleures valeurs vont de 13.729 (graine 134) à 52.000 (graine 199) avec une médiane de 36.043. Une graine, c'est une histoire : jugez une méthode aléatoire sur beaucoup d'exécutions."
+    },
+    {
+      "id": "q7",
+      "type": "multiple_choice",
+      "prompt": "300 mouvements avec la graine 42 atteignent un HPWL de 2.612, très en dessous du placement « de référence » de 14. Pourquoi n'est-ce pas un meilleur placement ?",
+      "choices": [
+        "Le recuit est cassé : le HPWL ne peut pas descendre sous 14",
+        "Le HPWL n'a pas de règle de chevauchement, donc les cellules s'empilent (A, B, C, D finissent à moins de 0.5 les unes des autres ; débordement des cases 4 contre 2 au départ)",
+        "300 mouvements sont trop peu pour que le résultat compte",
+        "Les 2.612 viennent du placement final, pas du meilleur"
+      ],
+      "answer": 1,
+      "explain": "Rien dans le coût ne tient les cellules à distance : six cellules sur un seul point donneraient un HPWL de 0 (débordement des cases 5). Donc 14 n'est pas un plancher et un HPWL bas ne suffit pas à faire un bon placement. Un terme de densité, le module suivant, est la pièce manquante."
+    },
+    {
+      "id": "q8",
+      "type": "true_false",
+      "prompt": "tiny_place.json liste A et D comme plots fixes, donc dans le recuit de ce lab les cellules A et D ne bougent jamais.",
+      "answer": false,
+      "explain": "Ce recuit déplace toutes les cellules. Pour la graine 42, 20 des 60 propositions portent sur A ou D et 17 sont acceptées : A finit en (0, 1.99) et D en (5.76, 9). Les figer (--freeze A,D, une expérience) donne 51.096 au lieu de 49.576."
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+{
+ "scene": "placement",
+ "pageTitle": {
+  "en": "Part 1: Why not only walk downhill?",
+  "fr": "Partie 1 : pourquoi ne pas seulement descendre ?"
+ },
+ "eyebrow": {
+  "en": "Lab 07 · animated lesson · part 1",
+  "fr": "Lab 07 · leçon animée · partie 1"
+ },
+ "title": {
+  "en": "Why not only walk downhill?",
+  "fr": "Pourquoi ne pas seulement descendre ?"
+ },
+ "lede": {
+  "en": "Six cells, six nets, and a box around each net: the wirelength starts at 52. Why would anyone keep a move that makes it worse? Drag a cell to try your own placement.",
+  "fr": "Six cellules, six réseaux, et une boîte autour de chaque réseau : la longueur de fil part de 52. Pourquoi garder un mouvement qui l'aggrave ? Faites glisser une cellule pour essayer votre propre placement."
+ },
+ "note": {
+  "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move of its traces and checks them.",
+  "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque mouvement de ses traces et les vérifie."
+ },
+ "placement": {
+  "run": "seed42_60",
+  "colors": { "F": "#475569" },
+  "pads": ["A", "D"],
+  "landscape": {
+   "labels": {
+    "dip": { "en": "first dip", "fr": "premier creux" },
+    "valley": { "en": "deeper valley", "fr": "vallée plus profonde" }
+   }
+  },
+  "claims": [
+   { "positions": "start", "hpwl": 52 },
+   { "positions": "start", "net": 0, "hpwl": 8 },
+   { "positions": "start", "net": 1, "hpwl": 8 },
+   { "positions": "start", "net": 2, "hpwl": 8 },
+   { "positions": "start", "net": 3, "hpwl": 8 },
+   { "positions": "start", "net": 4, "hpwl": 16 },
+   { "positions": "start", "net": 5, "hpwl": 4 },
+   { "run": "seed42_60", "start": 52 },
+   { "run": "seed42_60", "move": 1, "cell": "D", "axis": "x", "dHpwl": 3, "clamped": true },
+   { "positions": { "A": { "x": 0, "y": 0 }, "B": { "x": 8, "y": 0 }, "C": { "x": 0, "y": 8 }, "D": { "x": 8, "y": 8 }, "E": { "x": 4, "y": 4 }, "F": { "x": 4, "y": 4 } }, "hpwl": 48 }
+  ]
+ },
+ "anchors": {
+  "joined":   { "slide": 1, "en": "joined", "fr": "reliées" },
+  "shorter":  { "slide": 1, "en": "shorter", "fr": "raccourcir" },
+  "block":    { "slide": 2, "en": "block", "fr": "bloc" },
+  "nets":     { "slide": 2, "en": "nets", "fr": "réseaux" },
+  "smallest": { "slide": 3, "en": "smallest", "fr": "petite" },
+  "height":   { "slide": 3, "en": "height", "fr": "hauteur" },
+  "half":     { "slide": 3, "en": "half", "fr": "demi" },
+  "eight":    { "slide": 4, "en": "eight", "fr": "huit" },
+  "sixteen":  { "slide": 4, "en": "sixteen", "fr": "seize" },
+  "four1":    { "slide": 4, "en": "four#1", "fr": "quatre#1" },
+  "fifty":    { "slide": 4, "en": "fifty", "fr": "cinquante" },
+  "simple":   { "slide": 5, "en": "simple", "fr": "simple" },
+  "downhill": { "slide": 5, "en": "downhill", "fr": "descendre" },
+  "stop":     { "slide": 5, "en": "stop", "fr": "arrêtez" },
+  "dip":      { "slide": 5, "en": "dip", "fr": "creux" },
+  "worse":    { "slide": 6, "en": "worse", "fr": "aggrave" },
+  "smith":    { "slide": 6, "en": "smith", "fr": "forgeron" },
+  "pause":    { "slide": 6, "en": "pause", "fr": "pause" },
+  "first":    { "slide": 6, "en": "first", "fr": "premier" },
+  "three":    { "slide": 6, "en": "three", "fr": "trois" }
+ },
+ "pausing": { "between": 0.55, "scene": 0.9, "question": 1.3, "tail": 2.8 },
+ "pauses": [
+  { "after": "@fifty", "sec": 1.2 },
+  { "after": "@dip", "sec": 1.0 }
+ ],
+ "initial": { "run": "seed42_60", "move": 0, "side": 0, "walker": "top" },
+ "timeline": [
+  { "at": "@stop", "walker": "dip" },
+  { "at": "@worse-0.4", "walker": "hill" },
+  { "at": "@first", "side": 1, "move": { "to": 1, "stop": "delta", "until": "@three+0.8", "phases": { "delta": "@three" } } },
+  { "at": "slide:6:end", "side": 0 }
+ ],
+ "show": [
+  { "show": "nets", "from": "@joined", "to": "end" },
+  { "show": "nets", "from": "@smallest", "to": "@eight", "ids": [4], "only": true },
+  { "show": "nets", "from": "@eight", "to": "@sixteen", "ids": [0, 1, 2, 3] },
+  { "show": "nets", "from": "@sixteen", "to": "@four1", "ids": [4] },
+  { "show": "nets", "from": "@four1", "to": "@fifty", "ids": [5] },
+  { "show": "netlabels", "from": "@height", "to": "slide:4", "ids": [4] },
+  { "show": "netlabels", "from": "@eight", "to": "end" },
+  { "show": "counter", "from": "@fifty", "to": "end", "metric": "hpwl" },
+  { "show": "highlight", "from": "@block", "to": "@nets", "ids": ["A", "B", "C", "D", "E", "F"] },
+  { "show": "highlight", "from": "@three", "to": "end", "ids": ["D"] },
+  { "show": "landscape", "from": "@downhill", "to": "@pause" },
+  { "show": "move", "from": "@first", "to": "end" }
+ ],
+ "overlays": [
+  {
+   "from": "start", "to": "slide:2", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Why keep a **worse** move?", "fr": "Pourquoi garder un mouvement **pire** ?" },
+   "sub": { "en": "{six cells, six nets@joined}", "fr": "{six cellules, six réseaux@joined}" }
+  },
+  {
+   "from": "@shorter", "to": "@block", "x": 52, "y": 24, "type": "tag",
+   "text": { "en": "Goal: **shorter** wires", "fr": "But : des fils plus **courts**" }
+  },
+  {
+   "from": "slide:2", "to": "slide:3", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Cells and **nets**", "fr": "Cellules et **réseaux**" }
+  },
+  {
+   "from": "@nets", "to": "slide:3", "x": 52, "y": 24, "type": "term",
+   "text": { "en": "Net", "fr": "Réseau" },
+   "sub": { "en": "a group of cells joined by wires", "fr": "un groupe de cellules reliées par des fils" }
+  },
+  {
+   "from": "slide:3", "to": "slide:4", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Measure a net with a **box**", "fr": "Mesurer un réseau avec une **boîte**" },
+   "sub": { "en": "{width + height@height}", "fr": "{largeur + hauteur@height}" }
+  },
+  {
+   "from": "@half", "to": "slide:4", "x": 52, "y": 24, "type": "term",
+   "text": { "en": "HPWL", "fr": "HPWL" },
+   "sub": { "en": "half-perimeter wirelength", "fr": "longueur de fil par demi-périmètre" }
+  },
+  {
+   "from": "slide:4", "to": "slide:5", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "**52** to start", "fr": "**52** au départ" }
+  },
+  {
+   "from": "@eight", "to": "slide:5", "x": 50, "y": 36, "type": "eq",
+   "text": { "en": "##4## × ##8## {+ ##16##@sixteen} {+ ##4##@four1} {= **52**@fifty}", "fr": "##4## × ##8## {+ ##16##@sixteen} {+ ##4##@four1} {= **52**@fifty}" }
+  },
+  {
+   "from": "slide:5", "to": "slide:6", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Walking **downhill** in fog", "fr": "Descendre dans le **brouillard**" }
+  },
+  {
+   "from": "@simple", "to": "slide:6", "x": 47, "y": 25, "type": "tags",
+   "items": [
+    { "text": { "en": "keep only shorter wires", "fr": "garder seulement des fils plus courts" } },
+    { "text": { "en": "stuck in the first dip", "fr": "coincé dans le premier creux" }, "at": "@dip" }
+   ]
+  },
+  {
+   "from": "slide:6", "to": "end", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Sometimes, go **uphill**", "fr": "Parfois, **remonter**" }
+  },
+  {
+   "from": "@smith", "to": "@pause", "x": 47, "y": 25, "type": "term",
+   "text": { "en": "Simulated annealing", "fr": "Recuit simulé" },
+   "sub": { "en": "cool slowly, like a smith's metal", "fr": "refroidir lentement, comme le métal du forgeron" }
+  },
+  { "from": "slide:6:end+0.3", "to": "end", "x": 50, "y": 44, "type": "question" }
+ ],
+ "question": {
+  "at": "slide:6:end+0.3",
+  "text": {
+   "en": "The first move makes the wires **3** longer. Keep it?",
+   "fr": "Le premier mouvement allonge les fils de **3**. On le garde ?"
+  },
+  "hint": {
+   "en": "A careful walker never goes uphill.",
+   "fr": "Un marcheur prudent ne remonte jamais."
+  },
+  "options": [
+   {
+    "label": { "en": "Keep it", "fr": "On le garde" },
+    "reply": {
+     "en": "Not always. Part 2 plays this move to the end.",
+     "fr": "Pas toujours. La partie 2 joue ce mouvement jusqu'au bout."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "Reject it", "fr": "On le refuse" },
+    "reply": {
+     "en": "A careful walker would. The annealer is braver: Part 2 shows what it does.",
+     "fr": "Un marcheur prudent le ferait. Le recuit est plus audacieux : la partie 2 montre ce qu'il fait."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "It depends", "fr": "Ça dépend" },
+    "reply": {
+     "en": "Good guess. Part 2 shows what it depends on.",
+     "fr": "Bien vu. La partie 2 montre de quoi ça dépend."
+    },
+    "correct": true
+   }
+  ]
+ },
+ "chapters": [
+  { "at": "start", "title": { "en": "Why a worse move?", "fr": "Pourquoi un mouvement pire ?" } },
+  { "at": "slide:3", "title": { "en": "Boxes", "fr": "Boîtes" } },
+  { "at": "slide:5", "title": { "en": "Downhill", "fr": "Descendre" } }
+ ],
+ "strings": {
+  "en": {
+   "plChance": "chance to keep: {p} %"
+  },
+  "fr": {
+   "plYours": "Votre exécution",
+   "plPaused": "En pause. Vous essayez vos propres mouvements.",
+   "plHint": "Faites glisser une cellule pour voir la longueur de fil changer, ou laissez jouer le recuit : un mouvement à la fois, ou toute une exécution.",
+   "plStep": "Un mouvement",
+   "plMoveN": "mouvement",
+   "plMoves": "mouvements",
+   "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}",
+   "plChance": "chance de garder : {p} %",
+   "plWorse": "pires",
+   "plFree": "neutres",
+   "plVFree": "mouvement neutre",
+   "plVBest": "nouveau meilleur",
+   "plStepMsg": "Mouvement {k} : cellule {c}, {axis} {d}. Fils {dh}. T = {T}. {how} : <b>{v}</b>. Longueur de fil {h}, meilleur {b}.",
+   "plRunMsg": "Graine {s}, {n} mouvements : meilleur <b>{b}</b> ({bm}), final {f}. Acceptés {a} ({be} mieux, {w} pires, {fr} neutres), refusés {r}.",
+   "plAtMove": "au mouvement {k}",
+   "plDone": "L'exécution est finie. Appuyez sur « Recommencer » ou changez la graine."
+  }
+ }
+}
