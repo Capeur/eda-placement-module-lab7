@@ -97,7 +97,8 @@
 
   function mount(cfg) {
     const sb = cfg.sb, TM = cfg.timing, lang = cfg.lang || "en";
-    const T = Object.assign({}, I18N[lang] || I18N.en, cfg.ui || {});
+    // the storyboard may replace any built-in word of the stage: "strings": { "fr": { "plVFree": "mouvement neutre" } }
+    const T = Object.assign({}, I18N[lang] || I18N.en, cfg.ui || {}, ((cfg.sb && cfg.sb.strings) || {})[lang] || {});
     const L = (v) => (v == null ? "" : typeof v === "string" ? v : v[lang] != null ? v[lang] : v.en != null ? v.en : "");
     const errors = [];
     const err = (m) => { errors.push(m); console.error("[lesson] " + m); };

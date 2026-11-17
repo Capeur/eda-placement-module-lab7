@@ -355,3 +355,16 @@ never more than about 14 times a second. The walker of the landscape and the sid
 panel: grab, a note per change while dragging (higher = shorter wires), drop; "One move" and "Run to the end" play
 their verdicts, and a run that beat the start ends on a three-note chime.
 To let a question card play the right / wrong sound, add `"correct": true` or `false` to its options.
+
+## The stage's own words (5.0.1)
+The scene writes a few words itself (the move card, the verdicts, the tally, the counter labels, the try-it panel).
+They must be the words the narration uses. Replace any of them per language at the top level of the storyboard:
+```json
+"strings": { "fr": { "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}", "plVFree": "mouvement neutre", "plFree": "neutres" } }
+```
+Placement keys: `plMoveLine` ({k} {c} {axis} {d}), `plDelta` ({d}), `plVAcc`, `plVRej`, `plVFree`, `plVBest`, `plAcc`,
+`plRej`, `plBetter`, `plWorse`, `plFree`, `plChance` ({p}), `plNoDice`, `plWire`, `plBest`, `plTemp`, `plMoveN`, `plFinal`,
+`plMoves`, `plStartLine` ({v}), `plBestLine` ({v}), `plSpread`, `plMedian` ({v}), `plSeedN` ({s} {v}), and for the try-it
+panel `plSeed`, `plStep`, `plRun`, `plReset`, `plHint`, `plStart`, `plBack`, `plDrag`, `plStepMsg`, `plRunMsg`, `plHowFree`,
+`plHowDice`, `plAtMove`, `plNoBest`, `plDone`, `plYours`, `plPaused`. The built-in French says "coup", "coup gratuit",
+"graine", "acceptés / refusés"; the built-in English says "move", "free move", "seed", "accepted / rejected".

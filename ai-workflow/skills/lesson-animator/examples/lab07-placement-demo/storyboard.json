@@ -516,5 +516,10 @@
  "note": {
   "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move and checks them.",
   "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque coup et les vérifie."
+ },
+ "strings": {
+  "fr": {
+   "plVFree": "coup gratuit"
+  }
  }
 }
