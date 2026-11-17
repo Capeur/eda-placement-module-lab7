@@ -1,0 +1,182 @@
+{
+ "scene": "placement",
+ "pageTitle": {
+  "en": "Part 4: Best, not final",
+  "fr": "Partie 4 : Le meilleur, pas le dernier"
+ },
+ "eyebrow": {
+  "en": "Lab 07 · animated lesson · part 4",
+  "fr": "Lab 07 · leçon animée · partie 4"
+ },
+ "title": {
+  "en": "Best, not final",
+  "fr": "Le meilleur, pas le dernier"
+ },
+ "lede": {
+  "en": "The last placement is not always the best one: seed 199 ends worse than it started, and seed 162 spoils its best on the very last move. So the annealer keeps a copy of the best placement it has seen and returns that copy. Try other seeds yourself.",
+  "fr": "Le dernier placement n'est pas toujours le meilleur : la graine 199 finit pire qu'au départ, et la graine 162 gâche son meilleur au tout dernier mouvement. Alors le recuit garde une copie du meilleur placement vu et rend cette copie. Essayez d'autres graines vous-même."
+ },
+ "note": {
+  "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move of its traces and checks them.",
+  "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque mouvement de ses traces et les vérifie."
+ },
+ "placement": {
+  "run": "seed42_60",
+  "colors": { "F": "#475569" },
+  "claims": [
+   { "run": "seed42_60", "best": 49.6, "final": 49.6, "bestMove": 45 },
+   { "run": "seed199_60", "start": 52, "best": 52, "bestMove": 0, "final": 53.9, "peak": 60.5 },
+   { "run": "seed199_60", "move": 11, "hpwl": 60.5 },
+   { "run": "seed162_60", "bestMove": 59, "best": 27.8, "final": 27.9 },
+   { "run": "seed162_60", "move": 60, "cell": "E", "kind": "worse", "accepted": true, "p": 0.18, "u": 0.09 },
+   { "seeds": true, "beat": { "seed": 42, "count": 197 } }
+  ]
+ },
+ "anchors": {
+  "nothing":    { "slide": 19, "en": "nothing",   "fr": "rien" },
+  "seed":       { "slide": 19, "en": "seed",      "fr": "graine" },
+  "story":      { "slide": 20, "en": "story",     "fr": "histoire" },
+  "sixty":      { "slide": 20, "en": "sixty",     "fr": "soixante" },
+  "never":      { "slide": 20, "en": "never",     "fr": "jamais" },
+  "fiftythree": { "slide": 20, "en": "fifty#1",   "fr": "cinquante#1" },
+  "reaches":    { "slide": 21, "en": "reaches",   "fr": "atteint" },
+  "then":       { "slide": 21, "en": "then",      "fr": "puis" },
+  "longer":     { "slide": 21, "en": "longer",    "fr": "allonge" },
+  "dice":       { "slide": 21, "en": "dice",      "fr": "dé#1" },
+  "pass":       { "slide": 21, "en": "pass",      "fr": "passe" },
+  "nine":       { "slide": 21, "en": "nine",      "fr": "neuf" },
+  "copy":       { "slide": 22, "en": "copy",      "fr": "copie" },
+  "returns0":   { "slide": 22, "en": "returns",   "fr": "rend" },
+  "returns2":   { "slide": 22, "en": "returns#2", "fr": "rend#2" }
+ },
+ "pausing": { "between": 0.55, "scene": 0.9, "question": 1.3, "tail": 2.8 },
+ "pauses": [
+  { "after": "@fiftythree", "sec": 1.4 },
+  { "after": "@pass", "sec": 1.4 }
+ ],
+ "initial": { "run": "seed42_60", "move": 60, "side": 1 },
+ "timeline": [
+  { "at": "@story", "run": "seed199_60", "move": { "to": 11, "until": "@sixty" } },
+  { "at": "@sixty+0.3", "move": { "to": 60, "until": "@fiftythree" } },
+  { "at": "slide:21", "run": "seed162_60", "move": { "to": 59, "until": "@reaches+0.3" } },
+  { "at": "@then", "move": { "to": 60, "until": "@pass+1.2", "phases": { "delta": "@longer", "dice": "@dice", "verdict": "@pass" } } },
+  { "at": "slide:23", "run": "seed42_60", "move": { "to": 60, "over": 2.5 } },
+  { "at": "slide:23:end", "side": 0, "dim": 0.12 }
+ ],
+ "show": [
+  { "show": "nets", "from": "start", "to": "end" },
+  { "show": "counter", "from": "start", "to": "@returns0", "metric": "hpwl" },
+  { "show": "counter", "from": "@returns0", "to": "slide:23", "metric": "best", "label": { "en": "returned", "fr": "rendu" } },
+  { "show": "counter", "from": "slide:23", "to": "end", "metric": "hpwl" },
+  { "show": "chart", "from": "start", "to": "end", "best": true },
+  { "show": "thermo", "from": "start", "to": "end" },
+  { "show": "move", "from": "@then", "to": "slide:22" },
+  { "show": "dice", "from": "@dice", "to": "slide:22" },
+  { "show": "bestpos", "from": "@copy", "to": "slide:23" },
+  { "show": "highlight", "from": "@copy", "to": "slide:23", "ids": ["E"] }
+ ],
+ "overlays": [
+  {
+   "from": "slide:19", "to": "slide:20", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "This time, **yes**", "fr": "Cette fois, **oui**" },
+   "sub": { "en": "{49.6 at move 45, still 49.6 at move 60@nothing}", "fr": "{49.6 au mouvement 45, toujours 49.6 au mouvement 60@nothing}" }
+  },
+  {
+   "from": "@seed", "to": "slide:20", "x": 52, "y": 44, "type": "term",
+   "text": { "en": "Seed", "fr": "Graine" },
+   "sub": { "en": "the number that fixes every dice roll", "fr": "le nombre qui fixe tous les lancers de dé" }
+  },
+  {
+   "from": "slide:20", "to": "slide:21", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Seed **199**", "fr": "Graine **199**" },
+   "sub": { "en": "{never beats 52@never}", "fr": "{ne repasse jamais sous 52@never}" }
+  },
+  {
+   "from": "slide:21", "to": "slide:22", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Seed **162**", "fr": "Graine **162**" },
+   "sub": { "en": "{27.8, then 27.9@nine}", "fr": "{27.8, puis 27.9@nine}" }
+  },
+  {
+   "from": "slide:22", "to": "slide:23", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Keep the **best**", "fr": "Garder le **meilleur**" },
+   "sub": { "en": "{return the best copy, not the last@copy}", "fr": "{rendre la meilleure copie, pas la dernière@copy}" }
+  },
+  {
+   "from": "@returns2", "to": "slide:23", "x": 52, "y": 30, "type": "thumbs",
+   "items": [
+    { "run": "seed162_60", "move": "best", "label": { "en": "seed 162: 27.8", "fr": "graine 162 : 27.8" } },
+    { "run": "seed199_60", "move": "best", "label": { "en": "seed 199: 52.0", "fr": "graine 199 : 52.0" } }
+   ]
+  },
+  {
+   "from": "slide:23", "to": "end", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Is **42** typical?", "fr": "**42** est-il typique ?" }
+  },
+  { "from": "slide:23:end+0.3", "to": "end", "x": 50, "y": 44, "type": "question" }
+ ],
+ "question": {
+  "at": "slide:23:end+0.3",
+  "text": {
+   "en": "Seed 42 returned **49.6**. Is that a typical result?",
+   "fr": "La graine 42 a rendu **49.6**. Est-ce un résultat typique ?"
+  },
+  "hint": {
+   "en": "Seed 162 reached 27.8.",
+   "fr": "La graine 162 a atteint 27.8."
+  },
+  "options": [
+   {
+    "label": { "en": "Typical", "fr": "Typique" },
+    "reply": {
+     "en": "Not quite. Part 5 runs two hundred seeds.",
+     "fr": "Pas tout à fait. La partie 5 lance deux cents graines."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "Better than most", "fr": "Mieux que la plupart" },
+    "reply": {
+     "en": "No: 197 seeds out of 200 do better. Part 5 shows them.",
+     "fr": "Non : 197 graines sur 200 font mieux. La partie 5 les montre."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "One of the worst", "fr": "Une des pires" },
+    "reply": {
+     "en": "Right: 197 seeds out of 200 do better. Part 5 shows them.",
+     "fr": "Exact : 197 graines sur 200 font mieux. La partie 5 les montre."
+    },
+    "correct": true
+   }
+  ]
+ },
+ "chapters": [
+  { "at": "start", "title": { "en": "This time, yes", "fr": "Cette fois, oui" } },
+  { "at": "slide:20", "title": { "en": "Two other seeds", "fr": "Deux autres graines" } },
+  { "at": "slide:22", "title": { "en": "Keep the best", "fr": "Garder le meilleur" } }
+ ],
+ "strings": {
+  "en": {
+   "plChance": "chance to keep: {p} %"
+  },
+  "fr": {
+   "plYours": "Votre exécution",
+   "plPaused": "En pause. Vous essayez vos propres mouvements.",
+   "plHint": "Faites glisser une cellule pour voir la longueur de fil changer, ou laissez jouer le recuit : un mouvement à la fois, ou toute une exécution.",
+   "plStep": "Un mouvement",
+   "plMoveN": "mouvement",
+   "plMoves": "mouvements",
+   "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}",
+   "plChance": "chance de garder : {p} %",
+   "plWorse": "pires",
+   "plFree": "neutres",
+   "plVFree": "mouvement neutre",
+   "plVBest": "nouveau meilleur",
+   "plStepMsg": "Mouvement {k} : cellule {c}, {axis} {d}. Fils {dh}. T = {T}. {how} : <b>{v}</b>. Longueur de fil {h}, meilleur {b}.",
+   "plRunMsg": "Graine {s}, {n} mouvements : meilleur <b>{b}</b> ({bm}), final {f}. Acceptés {a} ({be} mieux, {w} pires, {fr} neutres), refusés {r}.",
+   "plAtMove": "au mouvement {k}",
+   "plDone": "L'exécution est finie. Appuyez sur « Recommencer » ou changez la graine."
+  }
+ }
+}
