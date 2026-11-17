@@ -26,9 +26,9 @@ seed162_60; chart `"best": true`; the detail move is seed 162's move 60; never s
 `bestpos` on seed 42 in S19). Follow `lessons/part-2/` as the format example. Run the draft
 timing check for EN and FR, fix until 0 errors, 0 warnings, commit
 ("Part 4 storyboard: Best, not final"). Do not build voices yet. Report the draft output.
+Before writing anything, read the "Deviations from the plan" sections of lessons/part-2/README.md and lessons/part-3/README.md to avoid re-hitting the engine's known quirks (initial-replay behavior, refs starting with "end", stamp width).
 
 ## Session prompt — Part 5 (slides 24-29)
-
 Read AGENTS.md, then do Stage 5b for Part 5 ("What the cost does not know", transcript
 slides 24-29, 28 sentences per language): write `lessons/part-5/storyboard.json` and
 `lessons/part-5/README.md` from the "Part 5" section of `lab07-notes/LESSON_PLANS.md`
@@ -37,6 +37,8 @@ run, a camera shot at `look` and a self-answering final card). Follow `lessons/p
 as the format example. Run the draft timing check for EN and FR, fix until 0 errors,
 0 warnings, commit ("Part 5 storyboard: What the cost does not know"). Do not build
 voices yet. Report the draft output.
+Before writing anything, read the "Deviations from the plan" sections of lessons/part-2/README.md and lessons/part-3/README.md to avoid re-hitting the engine's known quirks (initial-replay behavior, refs starting with "end", stamp width).
+
 
 ---
 
