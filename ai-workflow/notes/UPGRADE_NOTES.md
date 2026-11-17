@@ -707,4 +707,110 @@ python3 ~/.claude/skills/lesson-animator/scripts/serve.py docs 8090 &           
 
 ## 18. Status
 
-Stage 5 done. Next: Stage 5b (lesson Part 1 first), then Stage 6.
+**All stages done.** Stage 5b (the five animated lessons) and Stage 6 (players, site, hand-off) are recorded in
+section 19; the hand-off documents are `../WHAT_CHANGED.md` and `../ai-workflow/README.md`.
+
+## 19. Stage 5b (five animated lessons, EN/FR voices, ZH subtitles) and Stage 6 (players, site, hand-off) — done 2026-11-17/18
+
+Under Mistral Vibe as remote orchestrator (every commit reviewed against `../tools/lab07-notes/LESSON_PLANS.md`
+before the next part started) and the Mistral Vibe Code VS Code extension as the in-repo agent. Repo rules:
+`AGENTS.md`. One session per part; per-part detail (scenes, claims, deviations, commands, check results) is in
+`lessons/part-N/README.md`.
+
+### 19a. Per part
+
+Slide ranges are `PARTS` in `build_site.py`. Each part: storyboard + README in `lessons/part-N/`; silent draft
+first (`draft_timing.py`, both languages, 0 errors 0 warnings) before any voice; then voices, ZH subtitles, the two
+pages, `check_lesson.py` on both.
+
+| Part | Slides | Storyboard commit | Built commit | Sentences | Claims | Final `check_lesson.py` (both pages) |
+|---|---|---|---|---|---|---|
+| 1 Why not only walk downhill? | 1-6 | `6634a4b` (earlier) | `e1de176` | 28 | 10 | 0 errors, 0 warnings |
+| 2 One move, up close | 7-12 | `0981d6c` | `25d0929` (includes the S10-S11 overlay fix) | 28 | 6 | 0 errors, 0 warnings |
+| 3 Hot to cold | 13-18 | `48a798b` | `3278095` | 22 | 4 | 0 errors, 0 warnings |
+| 4 Best, not final | 19-23 | `d7077be` | `ce4a100` | 22 | 6 | 0 errors, 0 warnings |
+| 5 What the cost does not know | 24-29 | `dbf4ed8` | `1f47b2b` | 28 | 5 | 0 errors, 0 warnings |
+
+Every part replays **4 runs, 480 moves** by the engine, all equal to the checker; parts 4-5 also compare
+**200 seeds, 0 differ**. Voiced lengths (voice-build runs, 2026-11-17/18):
+
+| Part | EN | FR |
+|---|---|---|
+| 1 | 117.4 s | 118.6 s |
+| 2 | 110.5 s | 113.3 s |
+| 3 | 96.5 s | 97.6 s |
+| 4 | 94.1 s | 91.0 s |
+| 5 | 121.9 s | 125.0 s |
+
+Voices: EN `en-US-AndrewMultilingualNeural`, FR `fr-FR-RemyMultilingualNeural`, `--rate=-4%` (edge-tts over the
+VPN); ZH subtitles built with `subs_build.py` against the EN timing.
+
+### 19b. Commands actually run (per part N, from the site repo; P=~/eda-venv/bin/python, SK=the lesson-animator skill)
+
+```bash
+export PYTHONDONTWRITEBYTECODE=1
+P=$HOME/eda-venv/bin/python; SK=$HOME/.claude/skills/lesson-animator
+T=../eda-learning-lab7-pl; M=module02-07-sa-placement; EX=$T/courses/learn_placement/$M/examples
+DATA="$EX/trace_seed42_60.json $EX/trace_seed199_60.json $EX/trace_seed162_60.json $EX/trace_seed42_300.json $EX/seeds_1_200.json"
+B=build/lessons/part-N; SB=lessons/part-N/storyboard.json
+# draft (silent) first, no VPN needed:
+$P $SK/scripts/draft_timing.py --transcript $T/courses/learn_placement/$M/transcript.md --slides A-B --lang en \
+   --storyboard $SB --repo $T --out-audio $B/draft-en.m4a --out-timing $B/timing-en-draft.json
+$P $SK/scripts/draft_timing.py --transcript i18n/fr/$M/transcript.md --slides A-B --lang fr \
+   --storyboard $SB --repo $T --out-audio $B/draft-fr.m4a --out-timing $B/timing-fr-draft.json
+$P $SK/scripts/build_lesson.py --storyboard $SB --timing $B/timing-{en,fr}-draft.json --audio $B/draft-{en,fr}.m4a \
+   --lang en|fr --out $B/draft-{en,fr} --fonts site_src/fonts --storage-key lab07-lesson-speed --data $DATA
+$P $SK/scripts/check_lesson.py $B/draft-en/index.html $B/draft-fr/index.html --sheets $B/check-draft   # 0 errors, 0 warnings
+# voices (VPN up, user launches; LD_LIBRARY_PATH unset for ffprobe):
+$P $SK/scripts/voice_build.py --transcript $T/courses/learn_placement/$M/transcript.md --slides A-B --lang en \
+   --voice en-US-AndrewMultilingualNeural --rate=-4% --storyboard $SB --repo $T --workdir .cache/voice \
+   --out-audio $B/lesson-en.m4a --out-timing $B/timing-en.json
+$P $SK/scripts/voice_build.py --transcript i18n/fr/$M/transcript.md --slides A-B --lang fr \
+   --voice fr-FR-RemyMultilingualNeural --rate=-4% --storyboard $SB --repo $T --workdir .cache/voice \
+   --out-audio $B/lesson-fr.m4a --out-timing $B/timing-fr.json
+# ZH subtitles against the EN timing, then the pages:
+$P $SK/scripts/subs_build.py --transcript i18n/zh/$M/transcript.md --slides A-B --lang zh --against $B/timing-en.json --out $B/subs-zh.json
+$P $SK/scripts/build_lesson.py --storyboard $SB --timing $B/timing-en.json --audio $B/lesson-en.m4a --lang en \
+   --out docs/lessons/part-N --fonts site_src/fonts --storage-key lab07-lesson-speed --data $DATA \
+   --subs fr=$B/timing-fr.json --subs zh=$B/subs-zh.json
+$P $SK/scripts/build_lesson.py --storyboard $SB --timing $B/timing-fr.json --audio $B/lesson-fr.m4a --lang fr \
+   --out docs/fr/lessons/part-N --fonts site_src/fonts --storage-key lab07-lesson-speed --data $DATA \
+   --subs en=$B/timing-en.json --subs zh=$B/subs-zh.json
+$P $SK/scripts/check_lesson.py docs/lessons/part-N/index.html docs/fr/lessons/part-N/index.html --sheets $B/check
+```
+
+### 19c. Stage 6 (2026-11-17), commit `5c93abe`
+
+- Players both languages: `build_player.py --back ../index.html#lessons --next-url ../tools/sa-placement/index.html
+  --storage-key lab07-lessons --titles` = the `part_titles` of `i18n/strings.py` → `docs/lessons/index.html`,
+  `docs/fr/lessons/index.html`.
+- `build_site.py --repo ../eda-learning-lab7-pl` (puts the players on the page), restart `serve.py docs 8090`.
+- Tests, run 2026-11-17: `tools/check_sentences.py` clean (29 slides; EN 128, FR 128, ZH 128);
+  `tools/test_site.py` **161 checks, 0 failed** (en 76, fr 76, static 9 — includes the player checks: 5 of 5 parts,
+  `#part-N`, `ended` countdown, language link, and per lesson page x language: no console error, `errors` empty,
+  `dataDiffer` = 0, `seedsDiffer` = 0, subtitles menu, Sounds button, audio 200);
+  `tools/test_lab_site.py` **206 ok, 0 FAIL** (en 103, fr 103).
+- Part README command blocks fixed to define `P` and `SK` (same commit).
+- Hand-off: `WHAT_CHANGED.md` (root), `ai-workflow/README.md` (timeline, problems, result), this section;
+  `ai-workflow/skills/` refreshed with `eda-skills-v3.2b/` (lab-upgrade v3.2 + lesson-animator v5.0.1).
+
+### 19d. Gotchas (also in `../WHAT_CHANGED.md`)
+
+1. The project started under Claude Code; the account was banned mid-project (VPN-related ToS issue). Work
+   continued with Mistral Vibe as orchestrator and the Mistral Vibe Code extension as in-repo agent; nothing was
+   lost, all stages are reproducible from the notes and scripts.
+2. The orchestrator's GitHub connector is read-only by design; every push was made from the laptop.
+3. edge-tts over the VPN stalls (~1 min without output); fix: switch VPN server, rerun the same command, cached
+   sentences are skipped (recorded in the part READMEs).
+4. The Vibe wrapper's `LD_LIBRARY_PATH` breaks the system `ffprobe` at the end of a voice run; fix: unset it (the
+   sentence cache makes the rerun cheap; recorded in the part-3 README).
+5. Part 2's S11 overlays had no positions in the plan; the first voiced check reported 12 collision warnings;
+   fixed by moving three x/y values, verified 0 warnings (`25d0929`).
+6. The part README command blocks did not define `P` and `SK` (fixed in Stage 6-A).
+
+### 19e. Final check numbers
+
+`check_lesson.py` 0 errors / 0 warnings on both pages of all five parts; every part 4 runs / 480 moves replayed,
+all equal to the checker; parts 4-5 also 200 seeds, 0 differ. `check_sentences.py` clean; `test_site.py` 161 checks
+0 failed; `test_lab_site.py` 206 ok 0 FAIL. Every number in a storyboard comes from the plan (which got it from the
+checker) or the checker's `--json`; the trace files were never edited or regenerated.
