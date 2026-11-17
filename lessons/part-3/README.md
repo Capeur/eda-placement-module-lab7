@@ -112,4 +112,16 @@ $P $SK/scripts/check_lesson.py docs/lessons/part-3/index.html docs/fr/lessons/pa
   - **0 errors, 0 warnings** on both pages. Contact sheets: `build/lessons/part-3/check-draft/sheet-en.png`,
     `sheet-fr.png` (looked at both: move 13 detail with the 12 % dice and the 58.6 peak, the two fast replays with the
     chart, move 60 rejected at T 0.08, the stamp over the dimmed stage, the final card).
-- Voices not built yet (no VPN in this session).
+- Voices + pages (2026-11-17, VPN up; note: `LD_LIBRARY_PATH` must be unset for `ffprobe`, the Vibe wrapper's
+  libstdc++ breaks the system ffmpeg): EN 22 sentences, 96.5 s (19.4 s of pauses), `lesson-en.m4a` + `timing-en.json`;
+  FR 22 sentences, 97.6 s (19.4 s of pauses), `lesson-fr.m4a` + `timing-fr.json`; ZH subs 22 sentences against the EN
+  timing; `build_lesson.py` wrote `docs/lessons/part-3/index.html` (0.25 MB, words exact) and
+  `docs/fr/lessons/part-3/index.html` (0.25 MB, words exact).
+- `check_lesson.py` on the two built pages, 2026-11-17:
+  - EN: claims 4/4; placement 4 run(s), 480 move(s) replayed by the engine, all equal; 96.5 s, 22 sentences, 10 texts,
+    question at 93.6 s; speed (CPU 6x) median 0.60 ms, 95 % under 1.50 ms, worst 2.60 ms — **no problems**;
+  - FR: claims 4/4; placement 4 run(s), 480 move(s), all equal; 97.6 s, 22 sentences, 10 texts, question at 94.8 s;
+    speed median 0.70 ms, 95 % under 1.50 ms, worst 2.40 ms — **no problems**;
+  - **0 errors, 0 warnings** on both pages. Contact sheets: `build/lessons/part-3/check/sheet-en.png`,
+    `sheet-fr.png` (looked at both: move 13 detail with the 12 % dice and the 58.6 peak, the two fast replays with the
+    chart, move 60 rejected at T 0.08, the stamp over the dimmed stage, the final card).
