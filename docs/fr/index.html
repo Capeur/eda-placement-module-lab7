@@ -14,7 +14,7 @@
     <div class="wrap">
       <span class="crumb">Placement pour l'EDA · <strong>Lab 07</strong></span>
       <nav class="toc" aria-label="Sur cette page">
-        
+        <a href="#lessons">Leçons</a>
         <a href="#lab">Lab interactif</a>
         <a href="#implement">Implémentation</a>
         <a href="#quiz">Quiz</a>
@@ -31,7 +31,17 @@
       <p class="lead">Six cellules sont posées sur une petite puce, reliées par six réseaux. Le recuit simulé les déplace au hasard, et garde un mouvement pire quand un dé dit oui, de moins en moins souvent à mesure que la puce refroidit. Ce lab raconte une exécution mouvement par mouvement, puis vous laisse la lancer, faire glisser les cellules vous-même et compter les mouvements.</p>
     </div>
 
-    
+    <section id="lessons">
+      <h2>Leçons animées</h2>
+      <p>Cinq courtes leçons, dessinées en direct dans le navigateur et racontées par une voix. La suivante démarre toute seule ; faites une pause et devinez quand une question apparaît. La voix suit la langue de cette page, et le menu des sous-titres sous chaque leçon propose aussi l'autre langue et le chinois.</p>
+      <div class="card lessons-card">
+        <iframe class="lesson-player" src="lessons/index.html" title="Leçon animée" allow="autoplay" style="width:100%;border:0;min-height:700px"></iframe>
+      </div>
+      <script>
+addEventListener("message", (e) => { const f = document.querySelector(".lesson-player");
+  if (f && e.source === f.contentWindow && e.data && e.data.lessonPlayer && e.data.ev === "height") f.style.height = e.data.h + 16 + "px"; });
+      </script>
+    </section>
 
     <section id="lab">
       <h2>Lab interactif</h2>

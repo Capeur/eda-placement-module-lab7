@@ -67,6 +67,8 @@ Copied verbatim from Part 2's storyboard (same as Parts 1 and 3): the French nar
 ## Commands (from the site repo; P=~/eda-venv/bin/python, SK=~/.claude/skills/lesson-animator)
 ```bash
 export PYTHONDONTWRITEBYTECODE=1
+P=$HOME/eda-venv/bin/python
+SK=$HOME/.claude/skills/lesson-animator
 T=../eda-learning-lab7-pl; M=module02-07-sa-placement; EX=$T/courses/learn_placement/$M/examples
 DATA="$EX/trace_seed42_60.json $EX/trace_seed199_60.json $EX/trace_seed162_60.json $EX/trace_seed42_300.json $EX/seeds_1_200.json"
 B=build/lessons/part-4; SB=lessons/part-4/storyboard.json

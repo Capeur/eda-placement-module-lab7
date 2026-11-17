@@ -14,7 +14,7 @@
     <div class="wrap">
       <span class="crumb">Placement for EDA · <strong>Lab 07</strong></span>
       <nav class="toc" aria-label="On this page">
-        
+        <a href="#lessons">Lessons</a>
         <a href="#lab">Interactive lab</a>
         <a href="#implement">Implement</a>
         <a href="#quiz">Quiz</a>
@@ -31,7 +31,17 @@
       <p class="lead">Six cells sit on a small chip, joined by six nets. Simulated annealing moves them at random, and keeps a worse move when a dice says yes, less and less often as the chip cools. This lab tells one run move by move, then lets you run it, drag cells yourself and count the moves.</p>
     </div>
 
-    
+    <section id="lessons">
+      <h2>Animated lessons</h2>
+      <p>Five short lessons, drawn live in the browser and told by a voice. The next one starts by itself; pause and guess when a question appears. The voice follows the language of this page, and the subtitles menu under each lesson also offers the other language and Chinese.</p>
+      <div class="card lessons-card">
+        <iframe class="lesson-player" src="lessons/index.html" title="Animated lesson" allow="autoplay" style="width:100%;border:0;min-height:700px"></iframe>
+      </div>
+      <script>
+addEventListener("message", (e) => { const f = document.querySelector(".lesson-player");
+  if (f && e.source === f.contentWindow && e.data && e.data.lessonPlayer && e.data.ev === "height") f.style.height = e.data.h + 16 + "px"; });
+      </script>
+    </section>
 
     <section id="lab">
       <h2>Interactive lab</h2>

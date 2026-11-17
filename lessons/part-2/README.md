@@ -54,6 +54,8 @@ Same replacements as Part 1 (copied verbatim from its storyboard): the French na
 ## Commands (from the site repo; P=~/eda-venv/bin/python, SK=~/.claude/skills/lesson-animator)
 ```bash
 export PYTHONDONTWRITEBYTECODE=1
+P=$HOME/eda-venv/bin/python
+SK=$HOME/.claude/skills/lesson-animator
 T=../eda-learning-lab7-pl; M=module02-07-sa-placement; EX=$T/courses/learn_placement/$M/examples
 DATA="$EX/trace_seed42_60.json $EX/trace_seed199_60.json $EX/trace_seed162_60.json $EX/trace_seed42_300.json $EX/seeds_1_200.json"
 B=build/lessons/part-2; SB=lessons/part-2/storyboard.json

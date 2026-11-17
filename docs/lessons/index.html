@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Animated lessons</title>
+<style>
+@font-face{font-family:'Fraunces';font-weight:700;font-style:normal;font-display:swap;src:url(part-1/fonts/fraunces-latin-700-normal.woff2) format('woff2')}@font-face{font-family:'Source Sans 3';font-weight:400;font-style:normal;font-display:swap;src:url(part-1/fonts/source-sans-3-latin-400-normal.woff2) format('woff2')}@font-face{font-family:'Source Sans 3';font-weight:600;font-style:normal;font-display:swap;src:url(part-1/fonts/source-sans-3-latin-600-normal.woff2) format('woff2')}@font-face{font-family:'IBM Plex Mono';font-weight:400;font-style:normal;font-display:swap;src:url(part-1/fonts/ibm-plex-mono-latin-400-normal.woff2) format('woff2')}
+:root { --bg: #f3f5f2; --surface: #fff; --ink: #17201c; --muted: #56625c; --line: #d6ddd8; --accent: #1d4ed8; --ok: #0f6b5c;
+  --display: "Fraunces", Georgia, "Times New Roman", serif; --body: "Source Sans 3", "Segoe UI", system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0e1412; --surface: #151d1a; --ink: #e6ece9; --muted: #9ba7a1; --line: #2a3531; --accent: #6f8fff; --ok: #36b39b; } }
+* { box-sizing: border-box; }
+body { margin: 0; padding: clamp(10px, 2.4vw, 26px); background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45; }
+html.embedded body { background: transparent; padding: 0; }
+.pl-wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 14px; }
+.pl-top { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; justify-content: space-between; }
+.pl-eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 3.4vw, 36px); line-height: 1.1; margin: 2px 0 0; text-wrap: balance; }
+.pl-links { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pl-links a, .pl-btn { font: inherit; font-size: 14.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; text-decoration: none; cursor: pointer; }
+.pl-links a:hover, .pl-btn:hover { border-color: var(--ink); }
+.pl-links a[aria-current="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pl-links .lab { font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+.pl-parts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.pl-parts button { width: 100%; height: 100%; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; cursor: pointer; display: grid; gap: 2px; }
+.pl-parts button:hover { border-color: var(--ink); }
+.pl-parts button[aria-current="true"] { border: 2px solid var(--accent); padding: 8px 11px; }
+.pl-parts .n { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.pl-parts .t { font-weight: 600; line-height: 1.25; }
+.pl-parts .done { color: var(--ok); }
+.pl-frame { width: 100%; border: 0; display: block; min-height: 620px; background: transparent; }
+.pl-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.pl-bar label { font-size: 14.5px; color: var(--muted); display: inline-flex; gap: 7px; align-items: center; }
+.pl-nav { display: flex; gap: 8px; }
+.pl-btn[disabled] { opacity: .4; cursor: default; }
+.pl-next { display: none; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; padding: 11px 14px; }
+.pl-next.on { display: flex; }
+.pl-next b { font-family: var(--display); font-size: 18px; }
+.pl-next .grow { flex: 1 1 220px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="pl-wrap">
+  <div class="pl-top">
+    <div><div class="pl-eyebrow">Lab 07 · animated lessons</div><h1>Animated lessons</h1></div>
+    <nav class="pl-links" aria-label="Other pages"><a href="../index.html#lessons" target="_top">← Back to the lab page</a><span class="lab">Voice</span><a aria-current="true">English</a><a data-lang="fr" data-base="../fr/lessons/index.html" href="../fr/lessons/index.html" lang="fr">Français</a></nav>
+  </div>
+  <ol class="pl-parts" aria-label="Parts of the lesson"></ol>
+  <div class="pl-next" role="status"><span class="grow"></span><button class="pl-btn" type="button" data-act="now"></button><button class="pl-btn" type="button" data-act="stay"></button></div>
+  <iframe class="pl-frame" title="Animated lesson" allow="autoplay"></iframe>
+  <div class="pl-bar">
+    <label><input type="checkbox" class="pl-auto"> Play the next part by itself</label>
+    <div class="pl-nav"><button class="pl-btn" type="button" data-act="prev">← Previous part</button><button class="pl-btn" type="button" data-act="next">Next part →</button></div>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  const CFG = {"parts": [{"n": 1, "src": "part-1/index.html", "title": "Why not only walk downhill?", "dur": 117.4}, {"n": 2, "src": "part-2/index.html", "title": "One move, up close", "dur": 110.5}, {"n": 3, "src": "part-3/index.html", "title": "Hot to cold", "dur": 96.5}, {"n": 4, "src": "part-4/index.html", "title": "Best, not final", "dur": 94.1}, {"n": 5, "src": "part-5/index.html", "title": "What the cost does not know", "dur": 121.9}], "t": {"part": "Part {n}", "parts": "Parts of the lesson", "links": "Other pages", "lesson": "Animated lesson", "prev": "Previous part", "next": "Next part", "auto": "Play the next part by itself", "nextUp": "Next:", "inSec": "starts in {s} s", "playNow": "Play it now", "stay": "Stay here", "end": "You have finished every part.", "back": "Back to the lab page", "voice": "Voice"}, "key": "lab07-lessons", "nextUrl": "../tools/sa-placement/index.html", "nextLabel": "Open the browser lab"};
+  const P = CFG.parts, T = CFG.t, KEY = CFG.key;
+  const $ = (s) => document.querySelector(s);
+  const frame = $(".pl-frame"), list = $(".pl-parts"), nextBox = $(".pl-next"), auto = $(".pl-auto");
+  const get = (k, d) => { try { const v = localStorage.getItem(KEY + k); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(KEY + k, v); } catch (e) { /* storage blocked */ } };
+  const done = new Set(get("-done", "").split(",").filter(Boolean).map(Number));
+  auto.checked = get("-auto", "1") === "1";
+  auto.addEventListener("change", () => { set("-auto", auto.checked ? "1" : "0"); if (!auto.checked) cancel(); });
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
+  let cur = -1, timer = 0, at = 0;
+  const btns = P.map((p, i) => {
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = `<span class="n"><span>${T.part.replace("{n}", p.n)}</span><span class="d"></span></span><span class="t"></span>`;
+    b.querySelector(".t").textContent = p.title;
+    b.addEventListener("click", () => load(i, true));
+    li.appendChild(b); list.appendChild(li); return b;
+  });
+  function paint() {
+    btns.forEach((b, i) => {
+      b.setAttribute("aria-current", String(i === cur));
+      const d = b.querySelector(".d"); d.textContent = done.has(P[i].n) ? "✓ " + fmt(P[i].dur) : fmt(P[i].dur); d.classList.toggle("done", done.has(P[i].n));
+    });
+    $('[data-act="prev"]').disabled = cur <= 0; $('[data-act="next"]').disabled = cur >= P.length - 1;
+    // the other languages open on the same part
+    document.querySelectorAll(".pl-links a[data-lang]").forEach((a) => { a.href = a.dataset.base + "#part-" + P[cur].n + (at > 0 ? "&s=" + at : ""); });
+  }
+  function cancel() { clearInterval(timer); timer = 0; nextBox.classList.remove("on"); }
+  function load(i, play, s) {
+    if (i < 0 || i >= P.length) return;
+    cancel(); cur = i; at = s || 0;
+    frame.src = P[i].src + (play ? "?autoplay=1" : s ? "?s=" + s : "");
+    try { history.replaceState(null, "", "#part-" + P[i].n); } catch (e) { /* file: pages */ }
+    paint();
+  }
+  function ended() {
+    done.add(P[cur].n); set("-done", [...done].join(",")); paint();
+    const nx = P[cur + 1];
+    const msg = nextBox.querySelector(".grow"), now = nextBox.querySelector('[data-act="now"]'), stay = nextBox.querySelector('[data-act="stay"]');
+    if (!nx) {
+      msg.innerHTML = `<b></b>`; msg.firstChild.textContent = T.end;
+      now.style.display = CFG.nextUrl ? "" : "none"; now.textContent = CFG.nextLabel || ""; now.onclick = () => { (window.top || window).location.href = CFG.nextUrl; };
+      stay.style.display = "none"; nextBox.classList.add("on"); return;
+    }
+    now.style.display = stay.style.display = ""; now.textContent = T.playNow; stay.textContent = T.stay;
+    now.onclick = () => load(cur + 1, true); stay.onclick = cancel;
+    let left = auto.checked ? 4 : 0;
+    const say = () => { msg.innerHTML = "<b></b> <span></span>"; msg.firstChild.textContent = `${T.nextUp} ${T.part.replace("{n}", nx.n)}: ${nx.title}`; msg.lastChild.textContent = left > 0 ? T.inSec.replace("{s}", left) : ""; };
+    say(); nextBox.classList.add("on");
+    if (auto.checked) timer = setInterval(() => { left--; if (left <= 0) load(cur + 1, true); else say(); }, 1000);
+  }
+  window.addEventListener("message", (e) => {
+    if (e.source !== frame.contentWindow || !e.data || !e.data.lesson) return;
+    if (e.data.ev === "height") frame.style.height = Math.max(400, e.data.h + 8) + "px";
+    else if (e.data.ev === "ended") ended();
+    else if (e.data.ev === "play") cancel();
+    else if (e.data.ev === "at") { at = e.data.s; paint(); }
+  });
+  $('[data-act="prev"]').addEventListener("click", () => load(cur - 1, true));
+  $('[data-act="next"]').addEventListener("click", () => load(cur + 1, true));
+  function fromHash() { const m = /part[-=](\d+)/.exec(location.hash + "&" + location.search); const i = m ? P.findIndex((p) => p.n === +m[1]) : -1; return i < 0 ? 0 : i; }
+  window.addEventListener("hashchange", () => { const i = fromHash(); if (i !== cur) load(i, false); });
+  // framed by the site page: tell it our height too
+  if (window.parent !== window) {
+    document.documentElement.classList.add("embedded");
+    const tell = () => window.parent.postMessage({ lessonPlayer: 1, ev: "height", h: Math.ceil(document.documentElement.getBoundingClientRect().height) }, "*");
+    if (window.ResizeObserver) new ResizeObserver(tell).observe(document.documentElement);
+  }
+  window.__player = { parts: P, load, current: () => cur, done };
+  const s0 = /[&#]s=(\d+)/.exec(location.hash);
+  load(fromHash(), false, s0 ? +s0[1] : 0);
+})();
+</script>
+</body>
+</html>
