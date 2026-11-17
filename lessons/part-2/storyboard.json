@@ -1,0 +1,186 @@
+{
+ "scene": "placement",
+ "pageTitle": {
+  "en": "Part 2: One move, up close",
+  "fr": "Partie 2 : Un mouvement, de près"
+ },
+ "eyebrow": {
+  "en": "Lab 07 · animated lesson · part 2",
+  "fr": "Lab 07 · leçon animée · partie 2"
+ },
+ "title": {
+  "en": "One move, up close",
+  "fr": "Un mouvement, de près"
+ },
+ "lede": {
+  "en": "The first two moves play out step by step: pick a cell, push it, measure the wires, then roll the dice. A move that is not worse is always accepted, with no dice at all. Step through the moves yourself.",
+  "fr": "Les deux premiers mouvements se jouent pas à pas : choisir une cellule, la pousser, mesurer les fils, puis lancer le dé. Un mouvement qui n'est pas pire est toujours accepté, sans aucun dé. Jouez les mouvements vous-même."
+ },
+ "note": {
+  "en": "Numbers come from the lab's checker (sa_place_check.py --json); the engine replays every move of its traces and checks them.",
+  "fr": "Les nombres viennent du vérificateur du lab (sa_place_check.py --json) ; le moteur rejoue chaque mouvement de ses traces et les vérifie."
+ },
+ "placement": {
+  "run": "seed42_60",
+  "colors": { "F": "#475569" },
+  "claims": [
+   { "run": "seed42_60", "move": 1, "cell": "D", "axis": "x", "dHpwl": 3, "T": 3, "p": 0.37, "u": 0.17, "accepted": true, "clamped": true, "kind": "worse" },
+   { "run": "seed42_60", "move": 2, "cell": "D", "dHpwl": 0, "accepted": true, "clamped": true, "kind": "free" },
+   { "formula": "p", "dHpwl": 1, "T": 3, "p": 0.72 },
+   { "formula": "p", "dHpwl": 3, "T": 3, "p": 0.37 },
+   { "formula": "p", "dHpwl": 6, "T": 3, "p": 0.14 },
+   { "run": "seed42_60", "move": 13, "cell": "D", "T": 1.4, "dHpwl": 3, "clamped": true }
+  ]
+ },
+ "anchors": {
+  "watch":       { "slide": 7,  "en": "watch",       "fr": "regardons" },
+  "picks":       { "slide": 8,  "en": "picks",       "fr": "choisit" },
+  "three8":      { "slide": 8,  "en": "three",       "fr": "trois" },
+  "chance":      { "slide": 9,  "en": "chance",      "fr": "chance" },
+  "accepted":    { "slide": 9,  "en": "accepted",    "fr": "accepté" },
+  "second":      { "slide": 10, "en": "second",      "fr": "deuxième" },
+  "changes":     { "slide": 10, "en": "changes",     "fr": "change" },
+  "nodice":      { "slide": 10, "en": "no dice",     "fr": "aucun dé" },
+  "free":        { "slide": 10, "en": "free",        "fr": "neutre" },
+  "seventy":     { "slide": 11, "en": "seventy",     "fr": "soixante" },
+  "thirty":      { "slide": 11, "en": "thirty",      "fr": "trente" },
+  "fourteen":    { "slide": 11, "en": "fourteen",    "fr": "quatorze" },
+  "temperature": { "slide": 11, "en": "temperature", "fr": "température" },
+  "later":       { "slide": 12, "en": "later",       "fr": "plus tard" },
+  "point":       { "slide": 12, "en": "point",       "fr": "virgule" },
+  "pushed":      { "slide": 12, "en": "pushed",      "fr": "poussé" }
+ },
+ "pausing": { "between": 0.55, "scene": 0.9, "question": 1.3, "tail": 2.8 },
+ "pauses": [
+  { "after": "@accepted", "sec": 1.6 },
+  { "after": "@fourteen", "sec": 0.9 }
+ ],
+ "initial": { "run": "seed42_60", "move": 0, "side": 0 },
+ "timeline": [
+  { "at": "@watch", "side": 1 },
+  { "at": "@picks", "move": { "to": 1, "until": "@accepted+1.2", "phases": { "delta": "@three8", "dice": "@chance", "verdict": "@accepted" } } },
+  { "at": "@second", "move": { "to": 2, "until": "@free+1.0", "phases": { "delta": "@changes", "dice": "@nodice", "verdict": "@free" } } },
+  { "at": "@later", "move": { "to": 12, "until": "@point+0.3" } },
+  { "at": "slide:12:end", "side": 0, "dim": 0.12 }
+ ],
+ "show": [
+  { "show": "nets", "from": "start", "to": "end" },
+  { "show": "counter", "from": "start", "to": "end", "metric": "hpwl" },
+  { "show": "move", "from": "@picks", "to": "slide:12:end" },
+  { "show": "dice", "from": "@chance", "to": "slide:11" },
+  { "show": "thermo", "from": "@temperature", "to": "end" },
+  { "show": "highlight", "from": "@pushed", "to": "end", "ids": ["D"] }
+ ],
+ "overlays": [
+  {
+   "from": "start", "to": "slide:8", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "One move, **up close**", "fr": "Un mouvement, **de près**" }
+  },
+  {
+   "from": "slide:8", "to": "slide:9", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Pick, push, **measure**", "fr": "Choisir, pousser, **mesurer**" },
+   "sub": { "en": "{wires +3@three8}", "fr": "{fils +3@three8}" }
+  },
+  {
+   "from": "slide:9", "to": "slide:10", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Worse? **Roll the dice**", "fr": "Pire ? **Lancez le dé**" },
+   "sub": { "en": "{0.17 < 0.37: accepted@accepted}", "fr": "{0.17 < 0.37 : accepté@accepted}" }
+  },
+  {
+   "from": "slide:10", "to": "slide:11", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "A **free** move", "fr": "Un mouvement **neutre**" }
+  },
+  {
+   "from": "@free", "to": "slide:11", "x": 52, "y": 24, "type": "term",
+   "text": { "en": "Free move", "fr": "Mouvement neutre" },
+   "sub": { "en": "the cell moves, no wire changes", "fr": "la cellule bouge, aucun fil ne change" }
+  },
+  {
+   "from": "slide:11", "to": "slide:12", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "What sets the **chance**", "fr": "Ce qui fixe la **chance**" }
+  },
+  {
+   "from": "@seventy", "to": "slide:12", "x": 46, "y": 9, "type": "tags",
+   "items": [
+    { "text": { "en": "1 longer: 72 %", "fr": "1 de plus : 72 %" } },
+    { "text": { "en": "3 longer: 37 %", "fr": "3 de plus : 37 %" }, "at": "@thirty" },
+    { "text": { "en": "6 longer: 14 %", "fr": "6 de plus : 14 %" }, "at": "@fourteen" }
+   ]
+  },
+  {
+   "from": "@temperature", "to": "slide:12", "x": 46, "y": 23, "type": "eq",
+   "text": { "en": "chance = e^(−Δ ÷ T)", "fr": "chance = e^(−Δ ÷ T)" }
+  },
+  {
+   "from": "slide:12", "to": "end", "x": 3, "y": 4, "type": "headline",
+   "text": { "en": "Same move, **colder**", "fr": "Même mouvement, **plus froid**" },
+   "sub": { "en": "{T = 1.4@point}", "fr": "{T = 1.4@point}" }
+  },
+  { "from": "slide:12:end+0.3", "to": "end", "x": 50, "y": 44, "type": "question" }
+ ],
+ "question": {
+  "at": "slide:12:end+0.3",
+  "text": {
+   "en": "Same **+3** move, but colder: **T = 1.4**. The chance is...",
+   "fr": "Le même mouvement **+3**, mais plus froid : **T = 1.4**. La chance est..."
+  },
+  "hint": {
+   "en": "At T = 3 it was 37 %.",
+   "fr": "À T = 3, elle était de 37 %."
+  },
+  "options": [
+   {
+    "label": { "en": "Bigger", "fr": "Plus grande" },
+    "reply": {
+     "en": "No: colder makes the dice stricter. Part 3 gives the number.",
+     "fr": "Non : plus froid, le dé devient plus strict. La partie 3 donne le nombre."
+    },
+    "correct": false
+   },
+   {
+    "label": { "en": "Smaller", "fr": "Plus petite" },
+    "reply": {
+     "en": "Right: colder makes the dice stricter. Part 3 gives the number.",
+     "fr": "Bien vu : plus froid, le dé devient plus strict. La partie 3 donne le nombre."
+    },
+    "correct": true
+   },
+   {
+    "label": { "en": "The same", "fr": "La même" },
+    "reply": {
+     "en": "No: the temperature changes the chance too. Part 3 gives the number.",
+     "fr": "Non : la température change aussi la chance. La partie 3 donne le nombre."
+    },
+    "correct": false
+   }
+  ]
+ },
+ "chapters": [
+  { "at": "start", "title": { "en": "One move", "fr": "Un mouvement" } },
+  { "at": "slide:10", "title": { "en": "Free move", "fr": "Mouvement neutre" } },
+  { "at": "slide:11", "title": { "en": "The chance", "fr": "La chance" } }
+ ],
+ "strings": {
+  "en": {
+   "plChance": "chance to keep: {p} %"
+  },
+  "fr": {
+   "plYours": "Votre exécution",
+   "plPaused": "En pause. Vous essayez vos propres mouvements.",
+   "plHint": "Faites glisser une cellule pour voir la longueur de fil changer, ou laissez jouer le recuit : un mouvement à la fois, ou toute une exécution.",
+   "plStep": "Un mouvement",
+   "plMoveN": "mouvement",
+   "plMoves": "mouvements",
+   "plMoveLine": "Mouvement {k} : cellule {c}, {axis} {d}",
+   "plChance": "chance de garder : {p} %",
+   "plWorse": "pires",
+   "plFree": "neutres",
+   "plVFree": "mouvement neutre",
+   "plVBest": "nouveau meilleur",
+   "plStepMsg": "Mouvement {k} : cellule {c}, {axis} {d}. Fils {dh}. T = {T}. {how} : <b>{v}</b>. Longueur de fil {h}, meilleur {b}.",
+   "plRunMsg": "Graine {s}, {n} mouvements : meilleur <b>{b}</b> ({bm}), final {f}. Acceptés {a} ({be} mieux, {w} pires, {fr} neutres), refusés {r}.",
+   "plAtMove": "au mouvement {k}",
+   "plDone": "L'exécution est finie. Appuyez sur « Recommencer » ou changez la graine."
+  }
+ }
+}
